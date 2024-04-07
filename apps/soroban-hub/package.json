@@ -1,0 +1,44 @@
+{
+  "name": "soroban-hub",
+  "productName": "soroban-hub",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main/index.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.3.1",
+    "@electron-forge/maker-deb": "^7.3.1",
+    "@electron-forge/maker-rpm": "^7.3.1",
+    "@electron-forge/maker-squirrel": "^7.3.1",
+    "@electron-forge/maker-zip": "^7.3.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.3.1",
+    "@electron-forge/plugin-fuses": "^7.2.0",
+    "@electron/fuses": "^1.7.0",
+    "electron": "29.1.6"
+  },
+  "keywords": [],
+  "author": "Creit Technologies LLP",
+  "license": "MIT",
+  "dependencies": {
+    "@doubleshot/nest-electron": "^0.2.5",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/microservices": "^10.3.7",
+    "@nestjs/platform-express": "^10.0.0",
+    "@stellar/stellar-sdk": "^11.3.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "electron": "^29.1.6",
+    "electron-squirrel-startup": "^1.0.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.1",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1"
+  }
+}

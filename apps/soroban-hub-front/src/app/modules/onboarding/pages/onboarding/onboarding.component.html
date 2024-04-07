@@ -1,0 +1,224 @@
+<section class="w-auto min-h-screen flex items-center p-[1rem]">
+  <mat-stepper class="w-full h-full rounded-[0.5rem]" orientation="vertical" [linear]="true" #stepper>
+    <mat-step [stepControl]="passwordControl">
+      <div class="w-full pt-[1rem]">
+        <ng-template matStepLabel>Create a password</ng-template>
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input type="password" [formControl]="passwordControl" matInput placeholder="Write here" required>
+          <mat-hint>Min 12 characters</mat-hint>
+        </mat-form-field>
+
+        <div class="w-full h-[1rem]"></div>
+
+        <div>
+          <button mat-raised-button color="primary"
+                  [disabled]="passwordControl.invalid"
+                  matStepperNext>Next</button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step [stepControl]="mongodbURIControl">
+      <div class="w-full pt-[1rem]">
+        <ng-template matStepLabel>Set your MongoDB URI</ng-template>
+        <mat-form-field>
+          <mat-label>URI</mat-label>
+          <input matInput
+                 [formControl]="mongodbURIControl"
+                 placeholder="Ex: mongodb://localhost:27017/SorobanHub"
+                 required>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button
+                  [disabled]="mongodbURIControl.invalid"
+                  mat-raised-button color="primary"
+                  matStepperNext>Next</button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step [stepControl]="networkGroupControl">
+      <div [formGroup]="networkGroupControl" class="w-full pt-[1rem]">
+        <ng-template matStepLabel>Create a network</ng-template>
+        <mat-form-field>
+          <mat-label>Name</mat-label>
+          <input matInput
+                 formControlName="name"
+                 placeholder="Ex: Private Network"
+                 required>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>RPC URL</mat-label>
+          <input matInput
+                 formControlName="rpcUrl"
+                 placeholder="Ex: https://rpc.com"
+                 required>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Network Passphrase</mat-label>
+          <mat-select formControlName="network">
+            @for (network of networks; track network.key) {
+              <mat-option [value]="network.value">{{  network.key }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button
+                  [disabled]="networkGroupControl.invalid"
+                  mat-raised-button color="primary"
+                  matStepperNext>Next</button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step [stepControl]="identityGroupControl">
+      <div [formGroup]="identityGroupControl" class="w-full pt-[1rem]">
+        <ng-template matStepLabel>Create an identity</ng-template>
+        <mat-form-field>
+          <mat-label>Name</mat-label>
+          <input matInput
+                 formControlName="name"
+                 placeholder="Ex: Protocol admin"
+                 required>
+        </mat-form-field>
+
+        <mat-form-field>
+          <mat-label>Public Key</mat-label>
+          <input matInput
+                 formControlName="publicKey"
+                 placeholder="G...."
+                 required>
+        </mat-form-field>
+
+        <div>
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-button
+                  [disabled]="identityGroupControl.invalid"
+                  mat-raised-button color="primary"
+                  matStepperNext>Next</button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step>
+      <ng-template matStepLabel>Done</ng-template>
+
+      <p class="text-center pt-[1rem] mb-[0.5rem]">
+        You're all set!
+      </p>
+
+      <div>
+        <button (click)="confirm()" class="w-full mb-[0.5rem]" mat-raised-button color="primary">Confirm</button>
+        <button class="w-full" mat-raised-button color="danger" (click)="stepper.reset()">Reset</button>
+      </div>
+    </mat-step>
+  </mat-stepper>
+</section>
+
+<section class="w-full min-h-screen p-[1rem]">
+  <div class="flex flex-col items-center justify-center w-full h-full">
+    <div class="w-full">
+      @switch (stepper.selectedIndex) {
+        @case (0) {
+          <img class="mx-auto w-[10rem]" src="/assets/images/undraw/security.svg" alt="security">
+        }
+        @case (1) {
+          <img class="mx-auto w-[10rem]" src="/assets/images/undraw/maintenance.svg" alt="maintenance_server">
+        }
+        @case (2) {
+          <img class="mx-auto w-[10rem]" src="/assets/images/undraw/cluster.svg" alt="maintenance_server">
+        }
+        @case (3) {
+          <img class="mx-auto w-[10rem]" src="/assets/images/undraw/mention.svg" alt="maintenance_server">
+        }
+      }
+    </div>
+
+    <div class="w-full">
+      @switch (stepper.selectedIndex) {
+        @case (0) {
+          <mat-card class="max-w-[20rem] mx-auto rounded-[0.5rem]">
+            <mat-card-header>
+              <mat-card-subtitle>Password</mat-card-subtitle>
+              <mat-card-title>Protect your information</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>
+                All of the sensitive information in the app is encrypted with your password.
+                You should use a really strong password to protect your data.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @case (1) {
+          <mat-card class="max-w-[20rem] mx-auto rounded-[0.5rem]">
+            <mat-card-header>
+              <mat-card-subtitle>Database</mat-card-subtitle>
+              <mat-card-title>Your Mongodb connection</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>
+                SorobanHub saves most of its data on a Mongodb database, this one can be a local database or a cloud database.
+                The app will use the URI to connect with the database and will keep the URI in a config file on your device.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @case (2) {
+          <mat-card class="max-w-[20rem] mx-auto rounded-[0.5rem]">
+            <mat-card-header>
+              <mat-card-subtitle>Network</mat-card-subtitle>
+              <mat-card-title>A network to use</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>
+                In SorobanHub you can manage multiple contracts across different networks,
+                define the one you would like to start using with your first project.
+                You can add more networks later.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @case (3) {
+          <mat-card class="max-w-[20rem] mx-auto rounded-[0.5rem]">
+            <mat-card-header>
+              <mat-card-subtitle>Identity</mat-card-subtitle>
+              <mat-card-title>An Address to use</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>
+                With SorobanHub you can define and use multiple addresses at the same time.
+                You can add more address later and they can be both Stellar accounts or Soroban contracts.
+                Be aware that SorobanHub does not sign transactions, instead you can connect your wallet or take the transaction and manually sign it elsewhere.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        @case (4) {
+          <mat-card class="max-w-[20rem] mx-auto rounded-[0.5rem]">
+            <img class="mx-auto w-[10rem]" src="/assets/logo/logo.png" alt="soroban-hub-logo">
+
+            <mat-card-header>
+              <mat-card-subtitle>Are you ready?</mat-card-subtitle>
+              <mat-card-title>Confirm and Continue</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <p>
+                Click confirm and your initial configuration will be saved in the folder your selected.
+              </p>
+            </mat-card-content>
+          </mat-card>
+        }
+      }
+    </div>
+  </div>
+</section>
