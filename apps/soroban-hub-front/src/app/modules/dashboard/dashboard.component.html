@@ -45,7 +45,7 @@
     @if (activeProject$ | async;) {
       <div *ngIf="activeProjectViews$ | async as activeProjectViews">
         @if (activeProjectViews.length > 0) {
-          <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+          <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" [(selectedIndex)]="activeProjectViewTab">
             @for (activeProjectView of activeProjectViews; track activeProjectView._id) {
               <mat-tab [label]="activeProjectView.name">
                 <div class="w-full p-[1rem]">
@@ -99,7 +99,7 @@
       <span matLine>Add a new widget to the current view</span>
     </a>
 
-    <a (click)="addNewProject()" mat-list-item [disabled]="!(activeProjectViews$ | async)?.length">
+    <a (click)="removeProjectView()" mat-list-item [disabled]="!(activeProjectViews$ | async)?.length">
       <span matListItemTitle>Remove view</span>
       <span matLine>Remove this view and all its widgets</span>
     </a>

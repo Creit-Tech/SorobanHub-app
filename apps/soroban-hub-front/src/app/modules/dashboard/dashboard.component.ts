@@ -2,10 +2,11 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddNewProjectComponent } from '../../shared/modals/add-new-project/add-new-project.component';
 import { Project, ProjectsRepository, ProjectView } from '../../state/projects/projects.repository';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { getActiveEntity, setActiveId } from '@ngneat/elf-entities';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AddNewProjectViewComponent } from '../../shared/modals/add-new-project-view/add-new-project-view.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,10 +28,13 @@ export class DashboardComponent {
   activeProject$: Observable<Project | undefined> = this.projectsRepository.activeProject$;
   activeProjectViews$: Observable<ProjectView[]> = this.projectsRepository.activeProjectViews$;
 
+  activeProjectViewTab: number = 0;
+
   constructor(
     private readonly matDialog: MatDialog,
     private readonly projectsRepository: ProjectsRepository,
-    private readonly bottomSheet: MatBottomSheet
+    private readonly bottomSheet: MatBottomSheet,
+    private readonly matSnackBar: MatSnackBar
   ) {}
 
   onProjectSelected(project: Project) {
@@ -61,22 +65,33 @@ export class DashboardComponent {
   }
 
   removeProject() {
-    // TODO: add a confirm modal
-
     const activeProject = this.projectsRepository.store.query(getActiveEntity());
     if (!activeProject) {
       // TODO: toast this
       return;
     }
-    this.projectsRepository.removeProject(activeProject._id);
 
-    this.projectAddListRef?.dismiss();
-    // TODO: toast this
+    if (confirm(`Confirm that you want to remove the project "${activeProject.name}"`)) {
+      this.projectsRepository.removeProject(activeProject._id);
+
+      this.projectAddListRef?.dismiss();
+      this.matSnackBar.open(`Project "${activeProject.name} and all its views have been removed"`, 'close', {
+        duration: 5000,
+      });
+    }
   }
 
-  removeProjectView(id: ProjectView['_id']): void {
-    // TODO: add a confirm modal
-    this.projectsRepository.removeView(id);
-    // TODO: toast this
+  async removeProjectView(): Promise<void> {
+    const activeProjectViews: ProjectView[] = await firstValueFrom(this.activeProjectViews$);
+    const selectedProjectView: ProjectView = activeProjectViews[this.activeProjectViewTab];
+    if (confirm(`Confirm that you want to remove the view "${selectedProjectView.name}"`)) {
+      this.projectsRepository.removeView(selectedProjectView._id);
+
+      this.projectAddListRef?.dismiss();
+
+      this.matSnackBar.open(`Project view "${selectedProjectView.name} has been removed"`, 'close', {
+        duration: 5000,
+      });
+    }
   }
 }
