@@ -36,6 +36,7 @@ const persist = persistState(store, {
 @Injectable({ providedIn: 'root' })
 export class IdentitiesRepository {
   store = store;
+  persist = persist;
 
   identities$ = store.pipe(selectAllEntities());
 }

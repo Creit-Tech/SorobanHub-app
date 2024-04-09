@@ -15,21 +15,17 @@ export class SettingsService {
    * If the salt doesn't exist
    * This value doesn't need to be protected
    */
-  private _salt: string;
-  get salt(): string {
-    if (!!this._salt) {
-      return this._salt;
-    }
+  salt: string;
 
+  constructor() {
     if (existsSync(this.saltFilePath)) {
-      this._salt = readFileSync(this.saltFilePath, 'utf-8');
+      this.salt = readFileSync(this.saltFilePath, 'utf-8');
     } else {
       this.logger.debug("Salt doesn't exist, salt just created");
-      this._salt = randomBytes(256).toString('hex');
-      writeFileSync(this.saltFilePath, this._salt, 'utf-8');
+      const newSalt: string = randomBytes(256).toString('hex');
+      writeFileSync(this.saltFilePath, newSalt, 'utf-8');
+      this.salt = newSalt;
     }
-
-    return this._salt;
   }
 
   confirmAndCreateFolder(): void {
@@ -67,9 +63,11 @@ export enum SettingFile {
    */
   GENERAL = 'general',
 
+  // These are State files
   ONBOARDING = 'onboarding',
   NETWORKS = 'networks',
   IDENTITIES = 'identities',
+  PROJECTS = 'projects',
 }
 
 export enum SettingFolder {

@@ -4,9 +4,10 @@ import { OnboardingService } from '../../../../core/services/onboarding/onboardi
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { Networks } from '@stellar/stellar-sdk';
-import { IdentitiesRepository, IdentityType } from '../../../../state/identities/identities.repository';
-import { NetworksRepository } from '../../../../state/networks/networks.repository';
+import { IdentitiesRepository, Identity, IdentityType } from '../../../../state/identities/identities.repository';
+import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
 import { setEntities } from '@ngneat/elf-entities';
+import { Project } from '../../../../state/projects/projects.repository';
 
 @Component({
   selector: 'app-onboarding',
@@ -20,6 +21,8 @@ import { setEntities } from '@ngneat/elf-entities';
   ],
 })
 export class OnboardingComponent {
+  hide: boolean = true;
+
   networks: Array<{ key: string; value: Networks }> = Object.entries(Networks).map(([key, value]) => ({
     key,
     value,
@@ -73,7 +76,7 @@ export class OnboardingComponent {
           type: IdentityType.ACCOUNT,
           name: this.identityGroupControl.value.name as string,
           address: this.identityGroupControl.value.publicKey as string,
-        },
+        } satisfies Identity,
       ])
     );
 
@@ -84,7 +87,7 @@ export class OnboardingComponent {
           name: this.networkGroupControl.value.name as string,
           rpcUrl: this.networkGroupControl.value.rpcUrl as string,
           networkPassphrase: this.networkGroupControl.value.network as Networks,
-        },
+        } satisfies Network,
       ])
     );
 

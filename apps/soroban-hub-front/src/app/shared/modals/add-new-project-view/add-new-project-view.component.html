@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Add a new project view</h2>
+
+<mat-dialog-content class="w-[20rem]">
+  <section [formGroup]="form" class="w-full flex flex-col">
+    <mat-form-field>
+      <mat-label>Project</mat-label>
+      <mat-select formControlName="projectId" required>
+        @for (projects of projects$ | async; track projects._id) {
+          <mat-option [value]="projects._id">{{ projects.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input (keydown.enter)="confirm()" formControlName="name" matInput placeholder="Ex: Core Contract" required>
+    </mat-form-field>
+
+    <button (click)="confirm()" [disabled]="form.invalid" mat-raised-button color="primary" class="w-full">
+      Confirm
+    </button>
+  </section>
+</mat-dialog-content>

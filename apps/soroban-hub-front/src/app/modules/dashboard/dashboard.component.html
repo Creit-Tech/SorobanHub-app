@@ -1,7 +1,7 @@
-<mat-toolbar class="bg-white shadow-md">
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">
-    <mat-icon>menu</mat-icon>
-  </button>
+<mat-toolbar class="bg-white shadow-md relative">
+<!--  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">-->
+<!--    <mat-icon>menu</mat-icon>-->
+<!--  </button>-->
   <span>SorobanHub</span>
 
   <span class="w-full"></span>
@@ -13,14 +13,100 @@
 
 <section class="w-full grid grid-cols-[auto_1fr]">
 
-  <div class="bg-[#EEEEEE] p-[1rem]">
+  <div class="flex flex-col bg-[#EEEEEE] p-[1rem]">
+    @for (project of projects$ | async; track project._id) {
+      <div class="relative w-full mb-[1rem]">
+        @if (project.img) {
+          @if ((activeProject$ | async)?._id === project._id) {
+            <mat-icon class="absolute top-1/2" style="transform: translate(-100%, -50%)">arrow_right</mat-icon>
+          }
+
+          <button (click)="onProjectSelected(project)" class="w-[4rem] h-[4rem] bg-center bg-cover"
+                  style="background-image: url({{ project.img }})"
+                  mat-raised-button>
+          </button>
+        } @else {
+          <button (click)="onProjectSelected(project)" class="w-[4rem] h-[4rem] bg-center bg-cover bg-[#FAFAFA]"
+                  mat-raised-button>
+            {{ project.name.slice(0, 1) }}
+          </button>
+        }
+      </div>
+    }
+
     <div class="w-full flex justify-center items-center">
-      <button mat-icon-button color="primary">
+      <button (click)="addNewProject()" mat-icon-button color="primary">
         <mat-icon>add_circle</mat-icon>
       </button>
     </div>
   </div>
 
+  @if (!!(projects$ | async)?.length) {
+    @if (activeProject$ | async;) {
+      <div *ngIf="activeProjectViews$ | async as activeProjectViews">
+        @if (activeProjectViews.length > 0) {
+          <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+            @for (activeProjectView of activeProjectViews; track activeProjectView._id) {
+              <mat-tab [label]="activeProjectView.name">
+                <div class="w-full p-[1rem]">
+                  Content {{ $index }}
+                </div>
+              </mat-tab>
+            }
+          </mat-tab-group>
+        } @else {
+          <div class="w-full h-full flex justify-center items-center">
+            <h2 class="text-center opacity-50">
+              The are no views created for this project
+              <br>
+              Create a new one to start adding widgets
+            </h2>
+          </div>
+        }
 
+        <button (click)="openAddNewList()" mat-fab color="primary" class="fixed right-[1rem] bottom-[1rem]">
+          <mat-icon>menu</mat-icon>
+        </button>
+      </div>
+    } @else {
+      <div class="w-full h-full flex justify-center items-center">
+        <h2 class="text-center opacity-50">
+          Select one of the available projects
+        </h2>
+      </div>
+    }
+  } @else {
+    <div class="w-full h-full flex justify-center items-center">
+      <h2 class="text-center opacity-50">
+        There isn't any project yet
+        <br>
+        Create a new one and start managing it
+      </h2>
+    </div>
+  }
 
 </section>
+
+<ng-template #projectAddList>
+  <mat-nav-list>
+    <a (click)="addNewProjectView()" mat-list-item>
+      <span matListItemTitle>Add new view</span>
+      <span matLine>Add a new view to this project</span>
+    </a>
+
+    <a (click)="addNewProject()" mat-list-item [disabled]="!(activeProjectViews$ | async)?.length">
+      <span matListItemTitle>Add new widget</span>
+      <span matLine>Add a new widget to the current view</span>
+    </a>
+
+    <a (click)="addNewProject()" mat-list-item [disabled]="!(activeProjectViews$ | async)?.length">
+      <span matListItemTitle>Remove view</span>
+      <span matLine>Remove this view and all its widgets</span>
+    </a>
+
+    <a (click)="removeProject()" mat-list-item>
+      <span matListItemTitle>Remove project</span>
+      <span matLine>Delete the project, its views and widgets</span>
+    </a>
+  </mat-nav-list>
+</ng-template>

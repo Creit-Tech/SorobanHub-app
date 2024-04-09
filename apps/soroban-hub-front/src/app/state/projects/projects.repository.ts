@@ -1,27 +1,83 @@
-import { createStore, withProps } from '@ngneat/elf';
-import { withEntities, selectAllEntities } from '@ngneat/elf-entities';
+import { createStore, propsFactory, withProps } from '@ngneat/elf';
+import {
+  withEntities,
+  selectAllEntities,
+  withActiveId,
+  selectActiveEntity,
+  entitiesPropsFactory,
+  selectAllEntitiesApply,
+  deleteEntities,
+  deleteEntitiesByPredicate,
+} from '@ngneat/elf-entities';
 import { Injectable } from '@angular/core';
+import { persistState } from '@ngneat/elf-persist-state';
+import { StorageStrategy } from '../storage.strategy';
+import { Observable, of, switchMap } from 'rxjs';
 
 export interface Project {
   _id: string;
+  img?: string;
   name: string;
   networkId: string;
-  defaultSourcePub: string;
+  defaultIdentityId: string;
 }
 
-export interface ProjectsProps {
-  savingProject: boolean;
+export const { projectViewsEntitiesRef, withProjectViewsEntities } = entitiesPropsFactory('projectViews');
+
+export interface ProjectView {
+  _id: string;
+  projectId: Project['_id'];
+  name: string;
 }
+
+export interface ProjectsProps {}
 
 const store = createStore(
   { name: 'projects' },
-  withProps<ProjectsProps>({
-    savingProject: true,
-  }),
-  withEntities<Project, '_id'>({ idKey: '_id' })
+  withProps<ProjectsProps>({}),
+  withEntities<Project, '_id'>({ idKey: '_id' }),
+  withProjectViewsEntities<ProjectView, '_id'>({ idKey: '_id' }),
+  withActiveId()
 );
+
+const persist = persistState(store, {
+  key: 'projects',
+  storage: new StorageStrategy({ encrypt: true }),
+});
 
 @Injectable({ providedIn: 'root' })
 export class ProjectsRepository {
-  projects$ = store.pipe(selectAllEntities());
+  store = store;
+  persist = persist;
+
+  projects$: Observable<Project[]> = store.pipe(selectAllEntities());
+  activeProject$: Observable<Project | undefined> = store.pipe(selectActiveEntity());
+
+  activeProjectViews$: Observable<ProjectView[]> = this.activeProject$.pipe(
+    switchMap((activeProject: Project | undefined): Observable<ProjectView[]> => {
+      if (!activeProject) {
+        return of([]);
+      }
+
+      return store.pipe(
+        selectAllEntitiesApply({
+          filterEntity: (entity: ProjectView): boolean => entity.projectId === activeProject._id,
+          ref: projectViewsEntitiesRef,
+        })
+      );
+    })
+  );
+
+  removeProject(projectId: Project['_id']): void {
+    this.store.update(
+      deleteEntitiesByPredicate((projectView: ProjectView): boolean => projectView.projectId === projectId, {
+        ref: projectViewsEntitiesRef,
+      }),
+      deleteEntities([projectId])
+    );
+  }
+
+  removeView(projectViewId: ProjectView['_id']): void {
+    this.store.update(deleteEntities([projectViewId], { ref: projectViewsEntitiesRef }));
+  }
 }

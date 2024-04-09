@@ -1,12 +1,5 @@
 import { StateStorage } from '@ngneat/elf-persist-state/src/lib/storage';
 
-declare const window: {
-  ipcAPI: {
-    invoke: (params: { route: string; msg: any }) => Promise<any>;
-    send: (params: { route: string; msg: any }) => any;
-  };
-};
-
 export class StorageStrategy implements StateStorage {
   private readonly encrypt: boolean;
   constructor(params: { encrypt: boolean }) {

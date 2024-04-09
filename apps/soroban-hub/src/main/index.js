@@ -309,6 +309,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 var SettingsService_1;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SettingFolder = exports.SettingFile = exports.SettingsService = void 0;
@@ -322,20 +325,15 @@ let SettingsService = SettingsService_1 = class SettingsService {
         this.logger = new common_1.Logger(SettingsService_1.name);
         this.folderPath = (0, node_path_1.resolve)((0, node_os_1.homedir)(), '.SorobanHub');
         this.saltFilePath = (0, node_path_1.resolve)(this.folderPath, 'salt.txt');
-    }
-    get salt() {
-        if (!!this._salt) {
-            return this._salt;
-        }
         if ((0, node_fs_1.existsSync)(this.saltFilePath)) {
-            this._salt = (0, node_fs_1.readFileSync)(this.saltFilePath, 'utf-8');
+            this.salt = (0, node_fs_1.readFileSync)(this.saltFilePath, 'utf-8');
         }
         else {
             this.logger.debug("Salt doesn't exist, salt just created");
-            this._salt = (0, node_crypto_1.randomBytes)(256).toString('hex');
-            (0, node_fs_1.writeFileSync)(this.saltFilePath, this._salt, 'utf-8');
+            const newSalt = (0, node_crypto_1.randomBytes)(256).toString('hex');
+            (0, node_fs_1.writeFileSync)(this.saltFilePath, newSalt, 'utf-8');
+            this.salt = newSalt;
         }
-        return this._salt;
     }
     confirmAndCreateFolder() {
         if (!(0, node_fs_1.existsSync)(this.folderPath)) {
@@ -362,7 +360,8 @@ let SettingsService = SettingsService_1 = class SettingsService {
 };
 exports.SettingsService = SettingsService;
 exports.SettingsService = SettingsService = SettingsService_1 = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [])
 ], SettingsService);
 var SettingFile;
 (function (SettingFile) {
@@ -370,6 +369,7 @@ var SettingFile;
     SettingFile["ONBOARDING"] = "onboarding";
     SettingFile["NETWORKS"] = "networks";
     SettingFile["IDENTITIES"] = "identities";
+    SettingFile["PROJECTS"] = "projects";
 })(SettingFile || (exports.SettingFile = SettingFile = {}));
 var SettingFolder;
 (function (SettingFolder) {

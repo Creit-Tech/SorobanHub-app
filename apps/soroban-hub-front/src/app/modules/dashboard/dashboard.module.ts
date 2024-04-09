@@ -6,9 +6,27 @@ import { DashboardComponent } from './dashboard.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { AddNewProjectComponent } from '../../shared/modals/add-new-project/add-new-project.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatListModule } from '@angular/material/list';
+import { MatLineModule } from '@angular/material/core';
+import { AddNewProjectViewComponent } from '../../shared/modals/add-new-project-view/add-new-project-view.component';
 
 @NgModule({
   declarations: [DashboardComponent],
-  imports: [CommonModule, DashboardRoutingModule, MatToolbarModule, MatIconModule, MatButtonModule],
+  imports: [
+    CommonModule,
+    DashboardRoutingModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    AddNewProjectComponent,
+    MatDialogModule,
+    MatTabsModule,
+    MatListModule,
+    MatLineModule,
+    AddNewProjectViewComponent,
+  ],
 })
 export class DashboardModule {}

@@ -5,7 +5,13 @@
         <ng-template matStepLabel>Create a password</ng-template>
         <mat-form-field>
           <mat-label>Password</mat-label>
-          <input type="password" [formControl]="passwordControl" matInput placeholder="Write here" required>
+          <input (keydown.enter)="confirm()"
+                 placeholder="Write here" required
+                 [type]="hide ? 'password' : 'text'"
+                 [formControl]="passwordControl" matInput>
+          <button mat-icon-button matSuffix (click)="hide = !hide">
+            <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
           <mat-hint>Min 12 characters</mat-hint>
         </mat-form-field>
 
