@@ -12,6 +12,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatListModule } from '@angular/material/list';
 import { MatLineModule } from '@angular/material/core';
 import { AddNewProjectViewComponent } from '../../shared/modals/add-new-project-view/add-new-project-view.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [DashboardComponent],
@@ -27,6 +28,7 @@ import { AddNewProjectViewComponent } from '../../shared/modals/add-new-project-
     MatListModule,
     MatLineModule,
     AddNewProjectViewComponent,
+    MatTooltipModule,
   ],
 })
 export class DashboardModule {}

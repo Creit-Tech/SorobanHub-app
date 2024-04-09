@@ -15,12 +15,12 @@
 
   <div class="flex flex-col bg-[#EEEEEE] p-[1rem]">
     @for (project of projects$ | async; track project._id) {
-      <div class="relative w-full mb-[1rem]">
-        @if (project.img) {
-          @if ((activeProject$ | async)?._id === project._id) {
-            <mat-icon class="absolute top-1/2" style="transform: translate(-100%, -50%)">arrow_right</mat-icon>
-          }
+      <div class="relative w-full mb-[1rem]" [matTooltip]="project.name" matTooltipPosition="right" matTooltipShowDelay="500">
+        @if ((activeProject$ | async)?._id === project._id) {
+          <mat-icon class="absolute top-1/2" style="transform: translate(-100%, -50%)">arrow_right</mat-icon>
+        }
 
+        @if (project.img) {
           <button (click)="onProjectSelected(project)" class="w-[4rem] h-[4rem] bg-center bg-cover"
                   style="background-image: url({{ project.img }})"
                   mat-raised-button>
