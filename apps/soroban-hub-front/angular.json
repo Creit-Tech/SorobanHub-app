@@ -11,7 +11,8 @@
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss",
-          "standalone": false
+          "standalone": false,
+          "inlineStyle": true
         },
         "@schematics/angular:directive": {
           "standalone": false

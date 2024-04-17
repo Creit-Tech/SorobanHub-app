@@ -3,6 +3,7 @@ import { withEntities, selectAllEntities } from '@ngneat/elf-entities';
 import { Injectable } from '@angular/core';
 import { persistState } from '@ngneat/elf-persist-state';
 import { StorageStrategy } from '../storage.strategy';
+import { Observable } from 'rxjs';
 
 export enum IdentityType {
   ACCOUNT = 'public_key',
@@ -38,5 +39,5 @@ export class IdentitiesRepository {
   store = store;
   persist = persist;
 
-  identities$ = store.pipe(selectAllEntities());
+  identities$: Observable<Identity[]> = store.pipe(selectAllEntities());
 }

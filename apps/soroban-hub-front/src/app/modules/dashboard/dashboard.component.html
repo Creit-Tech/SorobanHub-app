@@ -2,11 +2,19 @@
 <!--  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">-->
 <!--    <mat-icon>menu</mat-icon>-->
 <!--  </button>-->
-  <span>SorobanHub</span>
+  <img class="h-4/6" src="/assets/logo/logo.png" alt="">
+<!--  <span>SorobanHub</span>-->
 
   <span class="w-full"></span>
 
-  <button mat-icon-button class="example-icon" aria-label="Example icon-button with share icon">
+
+    @if (activeProject$ | async; as project) {
+      <span>{{ project.name }}</span>
+    }
+
+  <span class="w-full"></span>
+
+  <button mat-icon-button routerLink="/settings">
     <mat-icon>settings</mat-icon>
   </button>
 </mat-toolbar>

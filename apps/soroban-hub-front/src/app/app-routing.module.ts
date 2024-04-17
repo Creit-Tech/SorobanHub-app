@@ -28,6 +28,12 @@ const routes: Routes = [
     loadChildren: () => import('./modules/onboarding/onboarding.module').then(m => m.OnboardingModule),
   },
   {
+    path: 'settings',
+    // canActivate: [onboardingDoneGuard(true, ['/onboarding']), isUnlockedGuard],
+    // canActivateChild: [onboardingDoneGuard(true, ['/onboarding']), isUnlockedGuard],
+    loadChildren: () => import('./modules/settings/settings.module').then(m => m.SettingsModule),
+  },
+  {
     path: '**',
     redirectTo: '/dashboard',
   },

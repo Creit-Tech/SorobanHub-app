@@ -1,0 +1,39 @@
+<mat-card class="w-full max-w-3xl mb-[1rem]">
+  <mat-card-content>
+    <table mat-table [dataSource]="(networks$ | async) || []">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="rpcUrl">
+        <th mat-header-cell *matHeaderCellDef> RPC URL </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.rpcUrl }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="passphrase">
+        <th mat-header-cell *matHeaderCellDef> Network </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.networkPassphrase }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef class="text-end"> </th>
+        <td mat-cell *matCellDef="let element" class="text-end">
+          <!--          <button mat-button color="primary">Edit</button>-->
+          <button (click)="deleteNetwork(element)" mat-button color="warn">Delete</button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>
+
+<section class="w-full flex justify-center">
+  <button (click)="addNewNetwork()" mat-raised-button color="primary">Add network</button>
+</section>
