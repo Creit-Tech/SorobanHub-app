@@ -12,7 +12,8 @@ import {
 import { Injectable } from '@angular/core';
 import { persistState } from '@ngneat/elf-persist-state';
 import { StorageStrategy } from '../storage.strategy';
-import { Observable, of, switchMap } from 'rxjs';
+import { filter, Observable, of, switchMap, take } from 'rxjs';
+import { LockScreenRepository } from '../lock-screen/lock-screen.repository';
 
 export interface Project {
   _id: string;
@@ -40,15 +41,13 @@ const store = createStore(
   withActiveId()
 );
 
-const persist = persistState(store, {
-  key: 'projects',
-  storage: new StorageStrategy({ encrypt: true }),
-});
-
 @Injectable({ providedIn: 'root' })
 export class ProjectsRepository {
   store = store;
-  persist = persist;
+  persist?: {
+    initialized$: Observable<boolean>;
+    unsubscribe(): void;
+  };
 
   projects$: Observable<Project[]> = store.pipe(selectAllEntities());
   activeProject$: Observable<Project | undefined> = store.pipe(selectActiveEntity());
@@ -67,6 +66,15 @@ export class ProjectsRepository {
       );
     })
   );
+
+  constructor(private readonly lockScreenRepository: LockScreenRepository) {
+    this.lockScreenRepository.isUnLocked$.pipe(filter(Boolean), take(1)).subscribe(() => {
+      this.persist = persistState(store, {
+        key: 'projects',
+        storage: new StorageStrategy({ encrypt: true }),
+      });
+    });
+  }
 
   removeProject(projectId: Project['_id']): void {
     this.store.update(

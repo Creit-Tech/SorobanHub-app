@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
 import { Networks } from '@stellar/stellar-sdk';
 import { persistState } from '@ngneat/elf-persist-state';
 import { StorageStrategy } from '../storage.strategy';
+import { LockScreenRepository } from '../lock-screen/lock-screen.repository';
+import { filter, Observable, take } from 'rxjs';
 
 export interface Network {
   _id: string;
@@ -20,15 +22,22 @@ const store = createStore(
   withEntities<Network, '_id'>({ idKey: '_id' })
 );
 
-const persist = persistState(store, {
-  key: 'networks',
-  storage: new StorageStrategy({ encrypt: true }),
-});
-
 @Injectable({ providedIn: 'root' })
 export class NetworksRepository {
   store = store;
-  persist = persist;
+  persist?: {
+    initialized$: Observable<boolean>;
+    unsubscribe(): void;
+  };
 
   networks$ = store.pipe(selectAllEntities());
+
+  constructor(private readonly lockScreenRepository: LockScreenRepository) {
+    this.lockScreenRepository.isUnLocked$.pipe(filter(Boolean), take(1)).subscribe(() => {
+      this.persist = persistState(store, {
+        key: 'networks',
+        storage: new StorageStrategy({ encrypt: true }),
+      });
+    });
+  }
 }

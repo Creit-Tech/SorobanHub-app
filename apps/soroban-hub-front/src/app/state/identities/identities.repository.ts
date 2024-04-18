@@ -3,7 +3,8 @@ import { withEntities, selectAllEntities } from '@ngneat/elf-entities';
 import { Injectable } from '@angular/core';
 import { persistState } from '@ngneat/elf-persist-state';
 import { StorageStrategy } from '../storage.strategy';
-import { Observable } from 'rxjs';
+import { filter, Observable, take } from 'rxjs';
+import { LockScreenRepository } from '../lock-screen/lock-screen.repository';
 
 export enum IdentityType {
   ACCOUNT = 'public_key',
@@ -29,15 +30,22 @@ const store = createStore(
   withEntities<Identity, '_id'>({ idKey: '_id' })
 );
 
-const persist = persistState(store, {
-  key: 'identities',
-  storage: new StorageStrategy({ encrypt: true }),
-});
-
 @Injectable({ providedIn: 'root' })
 export class IdentitiesRepository {
   store = store;
-  persist = persist;
+  persist?: {
+    initialized$: Observable<boolean>;
+    unsubscribe(): void;
+  };
 
   identities$: Observable<Identity[]> = store.pipe(selectAllEntities());
+
+  constructor(private readonly lockScreenRepository: LockScreenRepository) {
+    this.lockScreenRepository.isUnLocked$.pipe(filter(Boolean), take(1)).subscribe(() => {
+      this.persist = persistState(store, {
+        key: 'identities',
+        storage: new StorageStrategy({ encrypt: true }),
+      });
+    });
+  }
 }
