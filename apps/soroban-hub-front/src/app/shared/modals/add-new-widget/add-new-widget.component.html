@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>Add a new widget</h2>
+
+<mat-dialog-content class="w-[25rem]">
+  <section [formGroup]="baseForm" class="w-full flex flex-col">
+    <mat-form-field>
+      <mat-label>Project</mat-label>
+      <mat-select formControlName="project" required>
+        @for (projects of projects$ | async; track projects._id) {
+          <mat-option [value]="projects._id">{{ projects.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Project Views</mat-label>
+      <mat-select formControlName="projectView" required>
+        @for (activeProjectView of activeProjectViews$ | async; track activeProjectView._id) {
+          <mat-option [value]="activeProjectView._id">{{ activeProjectView.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Widget name</mat-label>
+      <input formControlName="name" matInput placeholder="Ex: Core Contract" required>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>Widget Type</mat-label>
+      <mat-select formControlName="type" required>
+        @for (widgetType of widgetTypes; track widgetType) {
+          <mat-option [disabled]="widgetType !== WidgetType.LEDGER_KEY_EXPIRATION"
+                      [value]="widgetType">
+            {{ widgetType }}
+            @if (widgetType !== WidgetType.LEDGER_KEY_EXPIRATION) {
+              (coming soon)
+            }
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @switch (baseForm.value.type) {
+      @case (WidgetType.LEDGER_KEY_EXPIRATION) {
+        <ng-container [formGroup]="ledgerKeyForm" class="w-full mb-auto">
+          <mat-form-field>
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="type" required>
+              <mat-option value="CONTRACT_ID">Contract ID</mat-option>
+              <mat-option value="CONTRACT_HASH">Code Hash</mat-option>
+              <mat-option value="LEDGER_KEY">Ledger Key</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Value</mat-label>
+            <input formControlName="value" matInput
+                   [placeholder]="ledgerKeyForm.value.type || ''"
+                   required>
+          </mat-form-field>
+        </ng-container>
+      }
+    }
+  </section>
+
+  <button (click)="confirm()"
+          [disabled]="baseForm.invalid || ledgerKeyForm.invalid"
+          mat-raised-button color="primary" class="w-full">
+    Confirm
+  </button>
+</mat-dialog-content>

@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit, PLATFORM_ID, PlatformRef } from '@angular/core';
 import { elfHooks } from '@ngneat/elf';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { AppMenuService } from './core/services/app-menu/app-menu.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,8 @@ export class AppComponent implements OnInit {
     @Inject(PLATFORM_ID)
     private readonly platform: PlatformRef,
     @Inject(DOCUMENT)
-    private readonly document: Document
+    private readonly document: Document,
+    private readonly appMenuService: AppMenuService
   ) {}
 
   ngOnInit(): void {
@@ -28,6 +30,8 @@ export class AppComponent implements OnInit {
 
         return nextState;
       });
+
+      this.appMenuService.startListeners();
     }
   }
 }

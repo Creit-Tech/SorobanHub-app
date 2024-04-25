@@ -3,6 +3,8 @@ import type { MicroserviceOptions } from '@nestjs/microservices';
 import { app } from 'electron';
 import { ElectronIpcTransport } from '@doubleshot/nest-electron';
 import { MainModule } from './main.module';
+import { INestMicroservice } from '@nestjs/common';
+import { AppMenuService } from './core/services/app-menu/app-menu.service';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -13,9 +15,12 @@ async function bootstrap() {
   try {
     await app.whenReady();
 
-    const nestApp = await NestFactory.createMicroservice<MicroserviceOptions>(MainModule, {
+    const nestApp: INestMicroservice = await NestFactory.createMicroservice<MicroserviceOptions>(MainModule, {
       strategy: new ElectronIpcTransport(),
     });
+
+    const appMenuService: AppMenuService = nestApp.get<AppMenuService>(AppMenuService);
+    appMenuService.createMainMenu();
 
     await nestApp.listen();
 

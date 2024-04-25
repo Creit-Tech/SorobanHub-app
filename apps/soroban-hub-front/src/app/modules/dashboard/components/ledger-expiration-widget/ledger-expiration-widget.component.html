@@ -1,0 +1,45 @@
+@if (widget$ | async; as widget) {
+  <mat-card>
+    <mat-card-header class="text-[1.25rem]">
+      {{ widget.name }}
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-card-subtitle>
+        Ledger expiration Widget
+      </mat-card-subtitle>
+
+      <ul class="py-[0.5rem] text-[0.75rem]">
+        <li>
+          <b>Expires on ledger:</b> {{ liveUntilLedgerSeq$ | async }}
+        </li>
+        <li>
+          <b>Modified on ledger:</b> {{ lastModifiedLedgerSeq$ | async }}
+        </li>
+        <li>
+          <b>Expires on:</b> {{ expirationDate$ | async | date: 'MMM dd, yyyy' }}
+        </li>
+        <li>
+          <b>Expires in:</b> {{ expiresIn$ | async }}
+        </li>
+      </ul>
+    </mat-card-content>
+
+    <mat-card-actions class="w-full flex flex-col">
+      <mat-form-field class="w-full">
+        <mat-label>Ledgers to bump</mat-label>
+        <input matInput placeholder="ex: 4000">
+      </mat-form-field>
+
+      @if (isExpired$ | async) {
+        <button class="w-full" mat-raised-button color="primary">
+          Restore
+        </button>
+      } @else {
+        <button class="w-full" mat-raised-button color="primary">
+          Bump
+        </button>
+      }
+    </mat-card-actions>
+  </mat-card>
+}

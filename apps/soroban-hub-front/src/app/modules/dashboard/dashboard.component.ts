@@ -2,11 +2,23 @@ import { Component, TemplateRef, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddNewProjectComponent } from '../../shared/modals/add-new-project/add-new-project.component';
 import { Project, ProjectsRepository, ProjectView } from '../../state/projects/projects.repository';
-import { firstValueFrom, Observable } from 'rxjs';
-import { getActiveEntity, setActiveId } from '@ngneat/elf-entities';
+import { BehaviorSubject, delay, firstValueFrom, Observable, switchMap, tap } from 'rxjs';
+import {
+  deleteEntitiesByPredicate,
+  getActiveEntity,
+  getAllEntitiesApply,
+  selectAllEntitiesApply,
+  selectEntities,
+  selectMany,
+  setActiveId,
+} from '@ngneat/elf-entities';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { AddNewProjectViewComponent } from '../../shared/modals/add-new-project-view/add-new-project-view.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Widget, WidgetsRepository, WidgetType } from '../../state/widgets/widgets.repository';
+import { distinctUntilArrayItemChanged, emitOnce } from '@ngneat/elf';
+import { AddNewWidgetComponent } from '../../shared/modals/add-new-widget/add-new-widget.component';
+import { ProjectsService } from '../../core/services/projects/projects.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,13 +40,27 @@ export class DashboardComponent {
   activeProject$: Observable<Project | undefined> = this.projectsRepository.activeProject$;
   activeProjectViews$: Observable<ProjectView[]> = this.projectsRepository.activeProjectViews$;
 
-  activeProjectViewTab: number = 0;
+  activeProjectViewTab$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+
+  activeProjectViewWidgets$: Observable<Widget[]> = this.activeProjectViews$.pipe(
+    distinctUntilArrayItemChanged(),
+    switchMap((activeProjectViews: ProjectView[]) =>
+      this.activeProjectViewTab$.pipe(
+        switchMap((activeProjectViewTab: number) =>
+          this.widgetsRepository.store.pipe(selectMany(activeProjectViews[activeProjectViewTab]?.widgets || []))
+        ),
+        distinctUntilArrayItemChanged()
+      )
+    )
+  );
 
   constructor(
     private readonly matDialog: MatDialog,
     private readonly projectsRepository: ProjectsRepository,
+    private readonly widgetsRepository: WidgetsRepository,
     private readonly bottomSheet: MatBottomSheet,
-    private readonly matSnackBar: MatSnackBar
+    private readonly matSnackBar: MatSnackBar,
+    private readonly projectsService: ProjectsService
   ) {}
 
   onProjectSelected(project: Project) {
@@ -64,28 +90,32 @@ export class DashboardComponent {
     this.projectAddListRef?.dismiss();
   }
 
+  async addNewWidget() {
+    const activeProjectViews: ProjectView[] = await firstValueFrom(this.activeProjectViews$);
+    const selectedProjectView: ProjectView = activeProjectViews[this.activeProjectViewTab$.getValue()];
+
+    this.matDialog.open(AddNewWidgetComponent, {
+      hasBackdrop: true,
+      data: { projectView: selectedProjectView },
+    });
+
+    this.projectAddListRef?.dismiss();
+  }
+
   removeProject() {
-    const activeProject = this.projectsRepository.store.query(getActiveEntity());
-    if (!activeProject) {
-      // TODO: toast this
-      return;
-    }
-
-    if (confirm(`Confirm that you want to remove the project "${activeProject.name}"`)) {
-      this.projectsRepository.removeProject(activeProject._id);
-
-      this.projectAddListRef?.dismiss();
-      this.matSnackBar.open(`Project "${activeProject.name} and all its views have been removed"`, 'close', {
-        duration: 5000,
-      });
-    }
+    this.projectsService.removeActiveProject();
   }
 
   async removeProjectView(): Promise<void> {
     const activeProjectViews: ProjectView[] = await firstValueFrom(this.activeProjectViews$);
-    const selectedProjectView: ProjectView = activeProjectViews[this.activeProjectViewTab];
+    const selectedProjectView: ProjectView = activeProjectViews[this.activeProjectViewTab$.getValue()];
     if (confirm(`Confirm that you want to remove the view "${selectedProjectView.name}"`)) {
-      this.projectsRepository.removeView(selectedProjectView._id);
+      emitOnce(() => {
+        this.widgetsRepository.store.update(
+          deleteEntitiesByPredicate((entity: Widget): boolean => entity.projectView === selectedProjectView._id)
+        );
+        this.projectsRepository.removeView(selectedProjectView._id);
+      });
 
       this.projectAddListRef?.dismiss();
 
@@ -94,4 +124,6 @@ export class DashboardComponent {
       });
     }
   }
+
+  protected readonly WidgetType = WidgetType;
 }

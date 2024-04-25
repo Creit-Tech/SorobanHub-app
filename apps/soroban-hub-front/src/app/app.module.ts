@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { environment } from '../environments/environment';
+import { AppMenuService } from './core/services/app-menu/app-menu.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -17,6 +18,7 @@ import { environment } from '../environments/environment';
       provide: 'env',
       useValue: environment,
     },
+    AppMenuService,
   ],
   bootstrap: [AppComponent],
 })

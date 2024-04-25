@@ -68,6 +68,7 @@ export enum SettingFile {
   NETWORKS = 'networks',
   IDENTITIES = 'identities',
   PROJECTS = 'projects',
+  WIDGETS = 'widgets',
 }
 
 export enum SettingFolder {

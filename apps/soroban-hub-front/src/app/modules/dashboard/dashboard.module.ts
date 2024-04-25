@@ -13,9 +13,14 @@ import { MatListModule } from '@angular/material/list';
 import { MatLineModule } from '@angular/material/core';
 import { AddNewProjectViewComponent } from '../../shared/modals/add-new-project-view/add-new-project-view.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { ProjectViewComponent } from './components/project-view/project-view.component';
+import { LedgerExpirationWidgetComponent } from './components/ledger-expiration-widget/ledger-expiration-widget.component';
+import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
-  declarations: [DashboardComponent],
+  declarations: [DashboardComponent, ProjectViewComponent, LedgerExpirationWidgetComponent],
   imports: [
     CommonModule,
     DashboardRoutingModule,
@@ -29,6 +34,9 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     MatLineModule,
     AddNewProjectViewComponent,
     MatTooltipModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
 })
 export class DashboardModule {}

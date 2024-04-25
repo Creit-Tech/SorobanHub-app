@@ -2,6 +2,152 @@
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
 
+/***/ "./apps/main/src/core/services/app-menu/app-menu.service.ts":
+/*!******************************************************************!*\
+  !*** ./apps/main/src/core/services/app-menu/app-menu.service.ts ***!
+  \******************************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var _a;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.AppMenuService = void 0;
+const nest_electron_1 = __webpack_require__(/*! @doubleshot/nest-electron */ "@doubleshot/nest-electron");
+const common_1 = __webpack_require__(/*! @nestjs/common */ "@nestjs/common");
+const electron_1 = __webpack_require__(/*! electron */ "electron");
+let AppMenuService = class AppMenuService {
+    constructor(win) {
+        this.win = win;
+    }
+    createMainMenu() {
+        const isMac = process.platform === 'darwin';
+        const template = [
+            ...(isMac
+                ? [
+                    {
+                        label: electron_1.app.name,
+                        submenu: [
+                            { role: 'about' },
+                            { type: 'separator' },
+                            { role: 'services' },
+                            { type: 'separator' },
+                            { role: 'hide' },
+                            { role: 'hideOthers' },
+                            { role: 'unhide' },
+                            { type: 'separator' },
+                            { role: 'quit' },
+                        ],
+                    },
+                ]
+                : []),
+            {
+                label: 'Projects',
+                submenu: [
+                    {
+                        label: 'New Project',
+                        click: () => {
+                            this.win.webContents.send('menu-event', { type: 'newProject' });
+                        },
+                    },
+                    {
+                        label: 'Edit active project',
+                        click: () => {
+                            this.win.webContents.send('menu-event', { type: 'editActiveProject' });
+                        },
+                    },
+                    {
+                        label: 'Remove active project',
+                        click: () => {
+                            this.win.webContents.send('menu-event', { type: 'removeActiveProject' });
+                        },
+                    },
+                ],
+            },
+            {
+                label: 'Edit',
+                submenu: [
+                    { role: 'undo' },
+                    { role: 'redo' },
+                    { type: 'separator' },
+                    { role: 'cut' },
+                    { role: 'copy' },
+                    { role: 'paste' },
+                    ...(isMac
+                        ? [
+                            { role: 'pasteAndMatchStyle' },
+                            { role: 'delete' },
+                            { role: 'selectAll' },
+                            { type: 'separator' },
+                            {
+                                label: 'Speech',
+                                submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
+                            },
+                        ]
+                        : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
+                ],
+            },
+            {
+                label: 'View',
+                submenu: [
+                    { role: 'reload' },
+                    { role: 'forceReload' },
+                    { role: 'toggleDevTools' },
+                    { type: 'separator' },
+                    { role: 'resetZoom' },
+                    { role: 'zoomIn' },
+                    { role: 'zoomOut' },
+                    { type: 'separator' },
+                    { role: 'togglefullscreen' },
+                ],
+            },
+            {
+                label: 'Window',
+                submenu: [
+                    { role: 'minimize' },
+                    { role: 'zoom' },
+                    ...(isMac
+                        ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }]
+                        : [{ role: 'close' }]),
+                ],
+            },
+            {
+                role: 'help',
+                submenu: [
+                    {
+                        label: 'Learn More',
+                        click: async () => {
+                            await electron_1.shell.openExternal('https://electronjs.org');
+                        },
+                    },
+                ],
+            },
+        ];
+        const menu = electron_1.Menu.buildFromTemplate(template);
+        electron_1.Menu.setApplicationMenu(menu);
+    }
+};
+exports.AppMenuService = AppMenuService;
+exports.AppMenuService = AppMenuService = __decorate([
+    (0, common_1.Injectable)(),
+    __param(0, (0, nest_electron_1.Window)()),
+    __metadata("design:paramtypes", [typeof (_a = typeof electron_1.BrowserWindow !== "undefined" && electron_1.BrowserWindow) === "function" ? _a : Object])
+], AppMenuService);
+
+
+/***/ }),
+
 /***/ "./apps/main/src/main.module.ts":
 /*!**************************************!*\
   !*** ./apps/main/src/main.module.ts ***!
@@ -22,6 +168,7 @@ const nest_electron_1 = __webpack_require__(/*! @doubleshot/nest-electron */ "@d
 const electron_1 = __webpack_require__(/*! electron */ "electron");
 const node_path_1 = __webpack_require__(/*! node:path */ "node:path");
 const settings_module_1 = __webpack_require__(/*! ./modules/settings/settings.module */ "./apps/main/src/modules/settings/settings.module.ts");
+const app_menu_service_1 = __webpack_require__(/*! ./core/services/app-menu/app-menu.service */ "./apps/main/src/core/services/app-menu/app-menu.service.ts");
 let MainModule = class MainModule {
 };
 exports.MainModule = MainModule;
@@ -46,7 +193,7 @@ exports.MainModule = MainModule = __decorate([
             settings_module_1.SettingsModule,
         ],
         controllers: [],
-        providers: [],
+        providers: [app_menu_service_1.AppMenuService],
     })
 ], MainModule);
 
@@ -370,6 +517,7 @@ var SettingFile;
     SettingFile["NETWORKS"] = "networks";
     SettingFile["IDENTITIES"] = "identities";
     SettingFile["PROJECTS"] = "projects";
+    SettingFile["WIDGETS"] = "widgets";
 })(SettingFile || (exports.SettingFile = SettingFile = {}));
 var SettingFolder;
 (function (SettingFolder) {
@@ -683,6 +831,7 @@ const core_1 = __webpack_require__(/*! @nestjs/core */ "@nestjs/core");
 const electron_1 = __webpack_require__(/*! electron */ "electron");
 const nest_electron_1 = __webpack_require__(/*! @doubleshot/nest-electron */ "@doubleshot/nest-electron");
 const main_module_1 = __webpack_require__(/*! ./main.module */ "./apps/main/src/main.module.ts");
+const app_menu_service_1 = __webpack_require__(/*! ./core/services/app-menu/app-menu.service */ "./apps/main/src/core/services/app-menu/app-menu.service.ts");
 if (__webpack_require__(/*! electron-squirrel-startup */ "electron-squirrel-startup")) {
     electron_1.app.quit();
 }
@@ -692,6 +841,8 @@ async function bootstrap() {
         const nestApp = await core_1.NestFactory.createMicroservice(main_module_1.MainModule, {
             strategy: new nest_electron_1.ElectronIpcTransport(),
         });
+        const appMenuService = nestApp.get(app_menu_service_1.AppMenuService);
+        appMenuService.createMainMenu();
         await nestApp.listen();
         electron_1.app.on('window-all-closed', () => {
             nestApp.close();

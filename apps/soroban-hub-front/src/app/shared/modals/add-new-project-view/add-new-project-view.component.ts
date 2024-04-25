@@ -63,6 +63,7 @@ export class AddNewProjectViewComponent {
             _id,
             projectId: this.form.value.projectId as string,
             name: this.form.value.name as string,
+            widgets: [],
           } satisfies ProjectView,
         ],
         { ref: projectViewsEntitiesRef }

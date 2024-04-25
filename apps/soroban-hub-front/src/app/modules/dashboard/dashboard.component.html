@@ -49,27 +49,31 @@
   </div>
 
   @if (!!(projects$ | async)?.length) {
-    @if (activeProject$ | async;) {
+    @if (activeProject$ | async; as activeProject) {
       <div *ngIf="activeProjectViews$ | async as activeProjectViews">
-        @if (activeProjectViews.length > 0) {
-          <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start" [(selectedIndex)]="activeProjectViewTab">
-            @for (activeProjectView of activeProjectViews; track activeProjectView._id) {
-              <mat-tab [label]="activeProjectView.name">
-                <div class="w-full p-[1rem]">
-                  Content {{ $index }}
-                </div>
-              </mat-tab>
-            }
-          </mat-tab-group>
-        } @else {
-          <div class="w-full h-full flex justify-center items-center">
-            <h2 class="text-center opacity-50">
-              The are no views created for this project
-              <br>
-              Create a new one to start adding widgets
-            </h2>
-          </div>
-        }
+        <mat-tab-group [animationDuration]="0" mat-stretch-tabs="false" mat-align-tabs="start" (selectedIndexChange)="activeProjectViewTab$.next($event)" [selectedIndex]="activeProjectViewTab$ | async">
+          @for (activeProjectView of activeProjectViews; track activeProjectView._id) {
+            <mat-tab [label]="activeProjectView.name">
+              <section class="w-full p-[1rem] grid grid-cols-12 gap-[1rem]">
+                @for (widget of activeProjectViewWidgets$ | async; track widget._id) {
+                  @switch (widget.type) {
+                    @case (WidgetType.LEDGER_KEY_EXPIRATION) {
+                      <app-ledger-expiration-widget class="block col-span-3" [project]="activeProject" [widget]="widget"></app-ledger-expiration-widget>
+                    }
+                  }
+                }
+              </section>
+            </mat-tab>
+          } @empty {
+            <div class="w-full h-full flex justify-center items-center">
+              <h2 class="text-center opacity-50">
+                The are no views created for this project
+                <br>
+                Create a new one to start adding widgets
+              </h2>
+            </div>
+          }
+        </mat-tab-group>
 
         <button (click)="openAddNewList()" mat-fab color="primary" class="fixed right-[1rem] bottom-[1rem]">
           <mat-icon>menu</mat-icon>
@@ -101,7 +105,7 @@
       <span matLine>Add a new view to this project</span>
     </a>
 
-    <a (click)="addNewProject()" mat-list-item [disabled]="!(activeProjectViews$ | async)?.length">
+    <a (click)="addNewWidget()" mat-list-item [disabled]="!(activeProjectViews$ | async)?.length">
       <span matListItemTitle>Add new widget</span>
       <span matLine>Add a new widget to the current view</span>
     </a>

@@ -14,6 +14,7 @@ import { persistState } from '@ngneat/elf-persist-state';
 import { StorageStrategy } from '../storage.strategy';
 import { filter, Observable, of, switchMap, take } from 'rxjs';
 import { LockScreenRepository } from '../lock-screen/lock-screen.repository';
+import { Widget } from '../widgets/widgets.repository';
 
 export interface Project {
   _id: string;
@@ -29,6 +30,7 @@ export interface ProjectView {
   _id: string;
   projectId: Project['_id'];
   name: string;
+  widgets: Array<Widget['_id']>;
 }
 
 export interface ProjectsProps {}
