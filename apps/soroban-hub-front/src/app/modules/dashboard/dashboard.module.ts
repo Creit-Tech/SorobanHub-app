@@ -18,6 +18,7 @@ import { LedgerExpirationWidgetComponent } from './components/ledger-expiration-
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [DashboardComponent, ProjectViewComponent, LedgerExpirationWidgetComponent],
@@ -37,6 +38,7 @@ import { MatInputModule } from '@angular/material/input';
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
+    ReactiveFormsModule,
   ],
 })
 export class DashboardModule {}

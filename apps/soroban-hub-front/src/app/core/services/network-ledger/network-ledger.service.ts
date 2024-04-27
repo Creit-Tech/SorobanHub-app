@@ -38,7 +38,7 @@ export class NetworkLedgerService {
     network: Networks;
     rpcUrl: string;
   }): Promise<SorobanRpc.Api.GetLatestLedgerResponse> {
-    return new SorobanRpc.Server(params.rpcUrl)
+    return new SorobanRpc.Server(params.rpcUrl, { allowHttp: true })
       .getLatestLedger()
       .then((response: SorobanRpc.Api.GetLatestLedgerResponse) => {
         this.networkLedgerRepository.store.update(

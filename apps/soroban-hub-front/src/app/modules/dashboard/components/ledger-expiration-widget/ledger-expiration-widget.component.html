@@ -26,17 +26,19 @@
     </mat-card-content>
 
     <mat-card-actions class="w-full flex flex-col">
-      <mat-form-field class="w-full">
-        <mat-label>Ledgers to bump</mat-label>
-        <input matInput placeholder="ex: 4000">
-      </mat-form-field>
+      @if (!(isExpired$ | async)) {
+        <mat-form-field [formControl]="bumpFormControl" class="w-full">
+          <mat-label>Ledgers to bump</mat-label>
+          <input [formControl]="bumpFormControl" matInput placeholder="ex: 4000">
+        </mat-form-field>
+      }
 
       @if (isExpired$ | async) {
-        <button class="w-full" mat-raised-button color="primary">
+        <button (click)="restore()" class="w-full" mat-raised-button color="primary">
           Restore
         </button>
       } @else {
-        <button class="w-full" mat-raised-button color="primary">
+        <button (click)="bump()" class="w-full" mat-raised-button color="primary">
           Bump
         </button>
       }

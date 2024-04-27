@@ -5,6 +5,7 @@ import {
   combineLatest,
   distinctUntilKeyChanged,
   filter,
+  firstValueFrom,
   map,
   Observable,
   share,
@@ -15,9 +16,24 @@ import { NetworkLedgerService } from '../../../../core/services/network-ledger/n
 import { Project } from '../../../../state/projects/projects.repository';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
-import { selectEntity, upsertEntities } from '@ngneat/elf-entities';
+import { getEntity, selectEntity, upsertEntities } from '@ngneat/elf-entities';
 import { DateTime } from 'luxon';
 import { NetworkLedgerData, NetworkLedgerRepository } from '../../../../state/network-ledger/network-ledger.repository';
+import {
+  Account,
+  Operation,
+  SorobanDataBuilder,
+  SorobanRpc,
+  Transaction,
+  TransactionBuilder,
+  xdr,
+} from '@stellar/stellar-sdk';
+import { IdentitiesRepository, Identity } from '../../../../state/identities/identities.repository';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Buffer } from 'buffer';
+import { MatDialog } from '@angular/material/dialog';
+import { FormControl, Validators } from '@angular/forms';
+import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
 
 @Component({
   selector: 'app-ledger-expiration-widget',
@@ -90,12 +106,20 @@ export class LedgerExpirationWidgetComponent {
     map((secondsBeforeExpires: number): boolean => secondsBeforeExpires <= 0)
   );
 
+  bumpFormControl: FormControl<number | null> = new FormControl<number | null>(null, [
+    Validators.required,
+    Validators.min(0),
+  ]);
+
   constructor(
     private readonly networksRepository: NetworksRepository,
     private readonly networkLedgerService: NetworkLedgerService,
     private readonly destroyRef: DestroyRef,
     private readonly networkLedgerRepository: NetworkLedgerRepository,
-    private readonly widgetsRepository: WidgetsRepository
+    private readonly widgetsRepository: WidgetsRepository,
+    private readonly identitiesRepository: IdentitiesRepository,
+    private readonly matSnackBar: MatSnackBar,
+    private readonly matDialog: MatDialog
   ) {}
 
   getKeySubscription: Subscription = combineLatest([
@@ -121,4 +145,126 @@ export class LedgerExpirationWidgetComponent {
         );
       },
     });
+
+  async bump() {
+    const widget: LedgerKeyExpirationWidget = this.widget$.getValue()!;
+    const project: Project = this.project$.getValue()!;
+    const identity: Identity | undefined = this.identitiesRepository.store.query(getEntity(project.defaultIdentityId));
+    const network: Network | undefined = this.networksRepository.store.query(getEntity(project.networkId));
+
+    if (!this.bumpFormControl.value || this.bumpFormControl.invalid) {
+      this.matSnackBar.open(`Ledgers to bump value is incorrect`, 'close', { duration: 5000 });
+      return;
+    }
+
+    if (!identity) {
+      this.matSnackBar.open(`Identity is undefined, contact support`, 'close', { duration: 5000 });
+      return;
+    }
+
+    if (!network) {
+      this.matSnackBar.open(`Network is undefined, contact support`, 'close', { duration: 5000 });
+      return;
+    }
+
+    const networkLedgerData: NetworkLedgerData | undefined = await firstValueFrom(
+      this.networkLedgerRepository.getNetwork(network.networkPassphrase)
+    );
+
+    if (!networkLedgerData) {
+      this.matSnackBar.open(`Network ledger data is undefined, contact support`, 'close', { duration: 5000 });
+      return;
+    }
+
+    const rpc: SorobanRpc.Server = new SorobanRpc.Server(network.rpcUrl);
+
+    let account: Account;
+    try {
+      account = await rpc.getAccount(identity.address);
+    } catch (e) {
+      this.matSnackBar.open(`Account ${identity.address} doesn't exist in the network ${network.name}`, 'close', {
+        duration: 5000,
+      });
+      return;
+    }
+
+    const tx: Transaction = new TransactionBuilder(account, {
+      fee: '10000000',
+      networkPassphrase: network.networkPassphrase,
+    })
+      .setTimeout(0)
+      .addOperation(
+        Operation.extendFootprintTtl({
+          extendTo: networkLedgerData.value + parseInt(this.bumpFormControl.value as any, 10),
+        })
+      )
+      .setSorobanData(
+        new SorobanDataBuilder().setReadOnly([xdr.LedgerKey.fromXDR(Buffer.from(widget.key, 'base64'))]).build()
+      )
+      .build();
+
+    const sim = await rpc.simulateTransaction(tx);
+
+    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+
+    this.matDialog.open(XdrExportComponent, {
+      data: {
+        tx: finalTx,
+      },
+    });
+  }
+
+  async restore() {
+    const widget: LedgerKeyExpirationWidget = this.widget$.getValue()!;
+    const project: Project = this.project$.getValue()!;
+    const identity: Identity | undefined = this.identitiesRepository.store.query(getEntity(project.defaultIdentityId));
+    const network: Network | undefined = this.networksRepository.store.query(getEntity(project.networkId));
+
+    if (!identity) {
+      this.matSnackBar.open(`Identity is undefined, contact support`, 'close', { duration: 5000 });
+      return;
+    }
+
+    if (!network) {
+      this.matSnackBar.open(`Network is undefined, contact support`, 'close', { duration: 5000 });
+      return;
+    }
+
+    const rpc: SorobanRpc.Server = new SorobanRpc.Server(network.rpcUrl);
+
+    let account: Account;
+    try {
+      account = await rpc.getAccount(identity.address);
+    } catch (e) {
+      this.matSnackBar.open(`Account ${identity.address} doesn't exist in the network ${network.name}`, 'close', {
+        duration: 5000,
+      });
+      return;
+    }
+
+    const tx: Transaction = new TransactionBuilder(account, {
+      fee: '10000000',
+      networkPassphrase: network.networkPassphrase,
+    })
+      .setTimeout(0)
+      .addOperation(Operation.restoreFootprint({}))
+      .setSorobanData(
+        new SorobanDataBuilder().setReadWrite([xdr.LedgerKey.fromXDR(Buffer.from(widget.key, 'base64'))]).build()
+      )
+      .build();
+
+    const sim = await rpc.simulateTransaction(tx);
+
+    if (!SorobanRpc.Api.isSimulationSuccess(sim)) {
+      throw new Error('Contract is not expired');
+    }
+
+    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+
+    this.matDialog.open(XdrExportComponent, {
+      data: {
+        tx: finalTx,
+      },
+    });
+  }
 }
