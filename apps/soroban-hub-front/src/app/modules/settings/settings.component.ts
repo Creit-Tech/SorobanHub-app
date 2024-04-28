@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
   styles: [
     `
       :host {
-        @apply block grid h-screen w-screen;
+        @apply grid h-screen w-screen overflow-y-hidden;
         grid-template-rows: auto 1fr;
         grid-template-columns: auto 1fr;
       }

@@ -34,6 +34,10 @@ export class AppMenuService {
               this.matDialog.open(AddNewProjectComponent, { hasBackdrop: true });
               break;
 
+            case 'editActiveProject':
+              this.projectsService.editActiveProject();
+              break;
+
             case 'removeActiveProject':
               this.projectsService.removeActiveProject();
               break;

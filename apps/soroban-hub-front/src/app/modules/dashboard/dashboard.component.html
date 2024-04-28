@@ -1,4 +1,4 @@
-<mat-toolbar class="bg-white shadow-md relative">
+<mat-toolbar class="col-span-2 row-span-auto bg-white shadow-md relative">
 <!--  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">-->
 <!--    <mat-icon>menu</mat-icon>-->
 <!--  </button>-->
@@ -18,90 +18,115 @@
   </button>
 </mat-toolbar>
 
-<section class="w-full grid grid-cols-[auto_1fr]">
+<!-- Projects selector -->
+<section class="col-span-auto overflow-y-auto flex flex-col bg-[#EEEEEE] p-[1rem]">
+  @for (project of projects$ | async; track project._id) {
+    <div class="relative w-full mb-[1rem]" [matTooltip]="project.name" matTooltipPosition="right" matTooltipShowDelay="500">
+      @if ((activeProject$ | async)?._id === project._id) {
+        <mat-icon class="absolute top-1/2" style="transform: translate(-100%, -50%)">arrow_right</mat-icon>
+      }
 
-  <div class="flex flex-col bg-[#EEEEEE] p-[1rem]">
-    @for (project of projects$ | async; track project._id) {
-      <div class="relative w-full mb-[1rem]" [matTooltip]="project.name" matTooltipPosition="right" matTooltipShowDelay="500">
-        @if ((activeProject$ | async)?._id === project._id) {
-          <mat-icon class="absolute top-1/2" style="transform: translate(-100%, -50%)">arrow_right</mat-icon>
-        }
-
-        @if (project.img) {
-          <button (click)="onProjectSelected(project)" class="w-[4rem] h-[4rem] bg-center bg-cover"
-                  style="background-image: url({{ project.img }})"
-                  mat-raised-button>
-          </button>
-        } @else {
-          <button (click)="onProjectSelected(project)" class="w-[4rem] h-[4rem] bg-center bg-cover bg-[#FAFAFA]"
-                  mat-raised-button>
-            {{ project.name.slice(0, 1) }}
-          </button>
-        }
-      </div>
-    }
-
-    <div class="w-full flex justify-center items-center">
-      <button (click)="addNewProject()" mat-icon-button color="primary">
-        <mat-icon>add_circle</mat-icon>
-      </button>
-    </div>
-  </div>
-
-  @if (!!(projects$ | async)?.length) {
-    @if (activeProject$ | async; as activeProject) {
-      @if (activeProjectViews$ | async; as activeProjectViews) {
-        <mat-tab-group (selectedIndexChange)="activeProjectViewTab$.next($event)"
-                       mat-stretch-tabs="false" mat-align-tabs="start"
-                       [animationDuration]="300">
-          @for (activeProjectView of activeProjectViews; track activeProjectView._id) {
-            <mat-tab [label]="activeProjectView.name">
-              <section class="w-full p-[1rem] grid grid-cols-12 gap-[1rem]">
-                @for (widget of activeProjectViewWidgets$ | async; track widget._id) {
-                  @switch (widget.type) {
-                    @case (WidgetType.LEDGER_KEY_EXPIRATION) {
-                      <app-ledger-expiration-widget class="block col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 3xl:col-span-2"
-                                                    [project]="activeProject"
-                                                    [widget]="widget">
-                      </app-ledger-expiration-widget>
-                    }
-                  }
-                }
-              </section>
-            </mat-tab>
-          } @empty {
-            <div class="w-full h-full flex justify-center items-center">
-              <h2 class="text-center opacity-50">
-                The are no views created for this project
-                <br>
-                Create a new one to start adding widgets
-              </h2>
-            </div>
-          }
-        </mat-tab-group>
-
-        <button (click)="openAddNewList()" mat-fab color="primary" class="fixed right-[1rem] bottom-[1rem]">
-          <mat-icon>menu</mat-icon>
+      @if (project.img) {
+        <button (click)="onProjectSelected(project)"
+                [cdkContextMenuTriggerFor]="projectItemContext"
+                class="w-[4rem] h-[4rem] bg-center bg-cover"
+                style="background-image: url({{ project.img }})"
+                mat-raised-button>
+        </button>
+      } @else {
+        <button (click)="onProjectSelected(project)"
+                [cdkContextMenuTriggerFor]="projectItemContext"
+                class="w-[4rem] h-[4rem] bg-center bg-cover bg-[#FAFAFA]"
+                mat-raised-button>
+          {{ project.name.slice(0, 1) }}
         </button>
       }
-    } @else {
-      <div class="w-full h-full flex justify-center items-center">
-        <h2 class="text-center opacity-50">
-          Select one of the available projects
-        </h2>
-      </div>
+
+      <ng-template #projectItemContext>
+        <mat-card cdkMenu>
+          <button mat-button cdkMenuItem
+                  class="px-[1.5rem]"
+                  (click)="onProjectSelected(project)">
+            Select
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-button cdkMenuItem
+                  class="px-[1.5rem]"
+                  (click)="editProject(project)">
+            Edit
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-button cdkMenuItem
+                  class="px-[1.5rem]"
+                  (click)="removeProject(project)">
+            Remove
+          </button>
+        </mat-card>
+      </ng-template>
+    </div>
+  }
+
+  <div class="w-full flex justify-center items-center">
+    <button (click)="addNewProject()" mat-icon-button color="primary">
+      <mat-icon>add_circle</mat-icon>
+    </button>
+  </div>
+</section>
+<!-- END Projects selector -->
+
+@if (!!(projects$ | async)?.length) {
+  @if (activeProject$ | async; as activeProject) {
+    @if (activeProjectViews$ | async; as activeProjectViews) {
+      <mat-tab-group class="col-span-1 overflow-y-auto"
+                     (selectedIndexChange)="activeProjectViewTab$.next($event)"
+                     mat-stretch-tabs="false" mat-align-tabs="start"
+                     [animationDuration]="300">
+        @for (activeProjectView of activeProjectViews; track activeProjectView._id) {
+          <mat-tab [label]="activeProjectView.name">
+            <section class="w-full p-[1rem] grid grid-cols-12 gap-[1rem]">
+              @for (widget of activeProjectViewWidgets$ | async; track widget._id) {
+                @switch (widget.type) {
+                  @case (WidgetType.LEDGER_KEY_EXPIRATION) {
+                    <app-ledger-expiration-widget class="block col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 3xl:col-span-2"
+                                                  [project]="activeProject"
+                                                  [widget]="widget">
+                    </app-ledger-expiration-widget>
+                  }
+                }
+              }
+            </section>
+          </mat-tab>
+        } @empty {
+          <div class="w-full h-full flex justify-center items-center">
+            <h2 class="text-center opacity-50">
+              The are no views created for this project
+              <br>
+              Create a new one to start adding widgets
+            </h2>
+          </div>
+        }
+      </mat-tab-group>
+
+      <button (click)="openAddNewList()" mat-fab color="primary" class="fixed right-[1rem] bottom-[1rem] z-30">
+        <mat-icon>menu</mat-icon>
+      </button>
     }
   } @else {
     <div class="w-full h-full flex justify-center items-center">
       <h2 class="text-center opacity-50">
-        There isn't any project yet
-        <br>
-        Create a new one and start managing it
+        Select one of the available projects
       </h2>
     </div>
   }
-
-</section>
+} @else {
+  <div class="w-full h-full flex justify-center items-center">
+    <h2 class="text-center opacity-50">
+      There isn't any project yet
+      <br>
+      Create a new one and start managing it
+    </h2>
+  </div>
+}
 
 <ng-template #projectAddList>
   <mat-nav-list>

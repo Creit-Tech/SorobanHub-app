@@ -26,8 +26,9 @@ import { ProjectsService } from '../../core/services/projects/projects.service';
   styles: [
     `
       :host {
-        @apply block grid h-screen w-screen;
+        @apply grid h-screen w-screen overflow-y-hidden;
         grid-template-rows: auto 1fr;
+        grid-template-columns: auto 1fr;
       }
     `,
   ],
@@ -103,8 +104,20 @@ export class DashboardComponent {
     this.projectAddListRef?.dismiss();
   }
 
-  removeProject() {
-    this.projectsService.removeActiveProject();
+  async editProject(project?: Project): Promise<void> {
+    if (project) {
+      this.projectsService.editProject(project);
+    } else {
+      this.projectsService.editActiveProject();
+    }
+  }
+
+  removeProject(project?: Project) {
+    if (project) {
+      this.projectsService.removeProject(project);
+    } else {
+      this.projectsService.removeActiveProject();
+    }
   }
 
   async removeProjectView(): Promise<void> {
