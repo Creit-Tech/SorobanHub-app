@@ -27,7 +27,7 @@
 
     <mat-card-actions class="w-full flex flex-col">
       @if (!(isExpired$ | async)) {
-        <mat-form-field [formControl]="bumpFormControl" class="w-full">
+        <mat-form-field class="w-full">
           <mat-label>Ledgers to bump</mat-label>
           <input [formControl]="bumpFormControl" matInput placeholder="ex: 4000">
         </mat-form-field>

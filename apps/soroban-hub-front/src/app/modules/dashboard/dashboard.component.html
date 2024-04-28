@@ -50,15 +50,20 @@
 
   @if (!!(projects$ | async)?.length) {
     @if (activeProject$ | async; as activeProject) {
-      <div *ngIf="activeProjectViews$ | async as activeProjectViews">
-        <mat-tab-group [animationDuration]="0" mat-stretch-tabs="false" mat-align-tabs="start" (selectedIndexChange)="activeProjectViewTab$.next($event)" [selectedIndex]="activeProjectViewTab$ | async">
+      @if (activeProjectViews$ | async; as activeProjectViews) {
+        <mat-tab-group (selectedIndexChange)="activeProjectViewTab$.next($event)"
+                       mat-stretch-tabs="false" mat-align-tabs="start"
+                       [animationDuration]="300">
           @for (activeProjectView of activeProjectViews; track activeProjectView._id) {
             <mat-tab [label]="activeProjectView.name">
               <section class="w-full p-[1rem] grid grid-cols-12 gap-[1rem]">
                 @for (widget of activeProjectViewWidgets$ | async; track widget._id) {
                   @switch (widget.type) {
                     @case (WidgetType.LEDGER_KEY_EXPIRATION) {
-                      <app-ledger-expiration-widget class="block col-span-3" [project]="activeProject" [widget]="widget"></app-ledger-expiration-widget>
+                      <app-ledger-expiration-widget class="block col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 3xl:col-span-2"
+                                                    [project]="activeProject"
+                                                    [widget]="widget">
+                      </app-ledger-expiration-widget>
                     }
                   }
                 }
@@ -78,7 +83,7 @@
         <button (click)="openAddNewList()" mat-fab color="primary" class="fixed right-[1rem] bottom-[1rem]">
           <mat-icon>menu</mat-icon>
         </button>
-      </div>
+      }
     } @else {
       <div class="w-full h-full flex justify-center items-center">
         <h2 class="text-center opacity-50">

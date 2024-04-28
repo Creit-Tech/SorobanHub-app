@@ -40,6 +40,7 @@ export class DashboardComponent {
   activeProject$: Observable<Project | undefined> = this.projectsRepository.activeProject$;
   activeProjectViews$: Observable<ProjectView[]> = this.projectsRepository.activeProjectViews$;
 
+  activeProjectViewTab: number = 0;
   activeProjectViewTab$: BehaviorSubject<number> = new BehaviorSubject<number>(0);
 
   activeProjectViewWidgets$: Observable<Widget[]> = this.activeProjectViews$.pipe(
