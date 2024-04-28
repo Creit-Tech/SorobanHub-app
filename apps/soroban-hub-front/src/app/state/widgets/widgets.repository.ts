@@ -1,5 +1,5 @@
 import { createStore, withProps } from '@ngneat/elf';
-import { withEntities, selectAllEntities } from '@ngneat/elf-entities';
+import { withEntities, selectAllEntities, deleteEntities } from '@ngneat/elf-entities';
 import { Injectable } from '@angular/core';
 import { Project, ProjectView } from '../projects/projects.repository';
 import { LockScreenRepository } from '../lock-screen/lock-screen.repository';
@@ -56,5 +56,9 @@ export class WidgetsRepository {
         storage: new StorageStrategy({ encrypt: true }),
       });
     });
+  }
+
+  deleteWidget(widgetId: Widget['_id']) {
+    this.store.update(deleteEntities([widgetId]));
   }
 }

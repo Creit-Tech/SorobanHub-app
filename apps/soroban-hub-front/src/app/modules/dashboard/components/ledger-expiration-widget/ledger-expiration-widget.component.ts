@@ -146,7 +146,7 @@ export class LedgerExpirationWidgetComponent {
       },
     });
 
-  async bump() {
+  async bump(): Promise<void> {
     const widget: LedgerKeyExpirationWidget = this.widget$.getValue()!;
     const project: Project = this.project$.getValue()!;
     const identity: Identity | undefined = this.identitiesRepository.store.query(getEntity(project.defaultIdentityId));
@@ -214,7 +214,7 @@ export class LedgerExpirationWidgetComponent {
     });
   }
 
-  async restore() {
+  async restore(): Promise<void> {
     const widget: LedgerKeyExpirationWidget = this.widget$.getValue()!;
     const project: Project = this.project$.getValue()!;
     const identity: Identity | undefined = this.identitiesRepository.store.query(getEntity(project.defaultIdentityId));
@@ -266,5 +266,21 @@ export class LedgerExpirationWidgetComponent {
         tx: finalTx,
       },
     });
+  }
+
+  async remove(): Promise<void> {
+    const widget: LedgerKeyExpirationWidget | undefined = this.widget$.getValue();
+
+    if (!widget) {
+      return;
+    }
+
+    if (confirm(`Confirm that you want to remove the widget "${widget.name}"`)) {
+      this.widgetsRepository.deleteWidget(widget._id);
+
+      this.matSnackBar.open(`Widget "${widget.name} has been removed"`, 'close', {
+        duration: 5000,
+      });
+    }
   }
 }

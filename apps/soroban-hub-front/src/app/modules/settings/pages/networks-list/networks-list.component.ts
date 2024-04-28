@@ -21,10 +21,9 @@ export class NetworksListComponent {
   searchControl: FormControl<string | null> = new FormControl<string | null>('');
 
   networks$: Observable<Network[]> = merge(
-    this.searchControl.valueChanges,
+    this.searchControl.valueChanges.pipe(debounceTime(200)),
     defer(() => of(this.searchControl.value))
   ).pipe(
-    debounceTime(200),
     switchMap((value: string | null) => {
       return this.networksRepository.networks$.pipe(
         map((identities: Network[]): Network[] => {
