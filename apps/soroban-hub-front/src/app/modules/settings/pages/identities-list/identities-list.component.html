@@ -1,4 +1,10 @@
 <mat-card class="w-full max-w-3xl mb-[1rem]">
+  <mat-form-field class="p-0" appearance="fill">
+    <mat-label>Search Identity</mat-label>
+    <input [formControl]="searchControl" matInput type="text" placeholder="Hello">
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
   <mat-card-content>
     <table mat-table [dataSource]="(identities$ | async) || []">
       <ng-container matColumnDef="name">

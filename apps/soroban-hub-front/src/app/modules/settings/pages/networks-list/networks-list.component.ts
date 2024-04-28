@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
-import { Observable } from 'rxjs';
+import { debounceTime, defer, map, merge, Observable, of, switchMap, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { AddNewNetworkComponent } from '../../../../shared/modals/add-new-network/add-new-network.component';
 import { NetworksService } from '../../../../core/services/networks/networks.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-networks-list',
@@ -16,7 +17,32 @@ import { NetworksService } from '../../../../core/services/networks/networks.ser
 })
 export class NetworksListComponent {
   displayedColumns: string[] = ['name', 'rpcUrl', 'passphrase', 'action'];
-  networks$: Observable<Network[]> = this.networksRepository.networks$;
+
+  searchControl: FormControl<string | null> = new FormControl<string | null>('');
+
+  networks$: Observable<Network[]> = merge(
+    this.searchControl.valueChanges,
+    defer(() => of(this.searchControl.value))
+  ).pipe(
+    debounceTime(200),
+    switchMap((value: string | null) => {
+      return this.networksRepository.networks$.pipe(
+        map((identities: Network[]): Network[] => {
+          if (!value) {
+            return identities;
+          }
+
+          return identities.filter((identity: Network): boolean => {
+            return (
+              identity.name.toLowerCase().includes(value) ||
+              identity.networkPassphrase.toLowerCase().includes(value) ||
+              identity.rpcUrl.toLowerCase().includes(value)
+            );
+          });
+        })
+      );
+    })
+  );
 
   constructor(
     private readonly networksRepository: NetworksRepository,

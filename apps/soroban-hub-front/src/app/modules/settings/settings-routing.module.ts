@@ -7,6 +7,11 @@ import { NetworksListComponent } from './pages/networks-list/networks-list.compo
 const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
+    redirectTo: 'identities',
+  },
+  {
+    path: '',
     component: SettingsComponent,
     children: [
       {

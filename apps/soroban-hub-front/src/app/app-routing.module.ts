@@ -29,8 +29,8 @@ const routes: Routes = [
   },
   {
     path: 'settings',
-    // canActivate: [onboardingDoneGuard(true, ['/onboarding']), isUnlockedGuard],
-    // canActivateChild: [onboardingDoneGuard(true, ['/onboarding']), isUnlockedGuard],
+    canActivate: [onboardingDoneGuard(true, ['/onboarding']), isUnlockedGuard],
+    canActivateChild: [onboardingDoneGuard(true, ['/onboarding']), isUnlockedGuard],
     loadChildren: () => import('./modules/settings/settings.module').then(m => m.SettingsModule),
   },
   {

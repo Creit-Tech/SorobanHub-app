@@ -14,6 +14,8 @@ import { MatTableModule } from '@angular/material/table';
 import { AddNewIdentityComponent } from '../../shared/modals/add-new-identity/add-new-identity.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NetworksListComponent } from './pages/networks-list/networks-list.component';
+import { MatFormField, MatHint, MatInput, MatLabel, MatSuffix } from '@angular/material/input';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [SettingsComponent, IdentitiesListComponent, NetworksListComponent],
@@ -29,6 +31,12 @@ import { NetworksListComponent } from './pages/networks-list/networks-list.compo
     MatTableModule,
     AddNewIdentityComponent,
     MatDialogModule,
+    MatInput,
+    MatFormField,
+    MatLabel,
+    MatHint,
+    MatSuffix,
+    ReactiveFormsModule,
   ],
 })
 export class SettingsModule {}

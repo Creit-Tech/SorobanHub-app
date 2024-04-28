@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { IdentitiesRepository, Identity } from '../../../../state/identities/identities.repository';
-import { Observable } from 'rxjs';
+import { debounceTime, defer, map, merge, Observable, of, switchMap, tap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { AddNewIdentityComponent } from '../../../../shared/modals/add-new-identity/add-new-identity.component';
 import { IdentitiesService } from '../../../../core/services/identities/identities.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-identities-list',
@@ -17,7 +18,27 @@ import { IdentitiesService } from '../../../../core/services/identities/identiti
 export class IdentitiesListComponent {
   displayedColumns: string[] = ['name', 'address', 'type', 'action'];
 
-  identities$: Observable<Identity[]> = this.identitiesRepository.identities$;
+  searchControl: FormControl<string | null> = new FormControl<string | null>('');
+
+  identities$: Observable<Identity[]> = merge(
+    this.searchControl.valueChanges,
+    defer(() => of(this.searchControl.value))
+  ).pipe(
+    debounceTime(200),
+    switchMap((value: string | null) => {
+      return this.identitiesRepository.identities$.pipe(
+        map((identities: Identity[]): Identity[] => {
+          if (!value) {
+            return identities;
+          }
+
+          return identities.filter((identity: Identity): boolean => {
+            return identity.name.toLowerCase().includes(value) || identity.address.toLowerCase().includes(value);
+          });
+        })
+      );
+    })
+  );
 
   constructor(
     private readonly identitiesRepository: IdentitiesRepository,
