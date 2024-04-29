@@ -4,6 +4,7 @@ import { BrowserWindow } from 'electron';
 import { resolve } from 'node:path';
 import { SettingsModule } from './modules/settings/settings.module';
 import { AppMenuService } from './core/services/app-menu/app-menu.service';
+import { format } from 'node:url';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { AppMenuService } from './core/services/app-menu/app-menu.service';
           },
         });
 
-        win.loadURL('http://localhost:4200');
+        win.loadFile(resolve(__dirname, '../renderer/index.html'));
 
         return win;
       },

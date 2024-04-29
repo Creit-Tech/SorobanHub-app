@@ -1,5 +1,9 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+# Sources for the electron app
+apps/soroban-hub/src/renderer/*
+apps/soroban-hub/src/main/index.js
+
 # Compiled output
 /dist
 /tmp

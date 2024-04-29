@@ -7,7 +7,6 @@ export class StorageStrategy implements StateStorage {
   }
 
   async setItem(key: string, value: Record<string, any>): Promise<void> {
-    console.log('setItem', { key, value });
     await window.ipcAPI.invoke({
       route: 'settings/state/set-item',
       msg: { key, data: JSON.stringify(value), encrypt: this.encrypt },
@@ -19,7 +18,6 @@ export class StorageStrategy implements StateStorage {
       route: 'settings/state/get-item',
       msg: { key, encrypt: this.encrypt },
     });
-    console.log('getItem', { state });
     return state && JSON.parse(state);
   }
 

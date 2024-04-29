@@ -43,6 +43,7 @@ const routes: Routes = [
   imports: [
     RouterModule.forRoot(routes, {
       enableViewTransitions: true,
+      useHash: true,
     }),
   ],
   exports: [RouterModule],
