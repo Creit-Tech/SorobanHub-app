@@ -15,9 +15,7 @@ export class SettingsController implements OnModuleInit {
     private readonly settingsService: SettingsService
   ) {}
 
-  onModuleInit(): any {
-    this.settingsService.confirmAndCreateFolder();
-  }
+  onModuleInit(): any {}
 
   @IpcHandle('set-password')
   async setPassword(@Payload() password: string): Promise<{ success: true }> {

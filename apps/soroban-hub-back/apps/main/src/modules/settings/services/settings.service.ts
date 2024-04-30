@@ -18,6 +18,7 @@ export class SettingsService {
   salt: string;
 
   constructor() {
+    this.confirmAndCreateFolder();
     if (existsSync(this.saltFilePath)) {
       this.salt = readFileSync(this.saltFilePath, 'utf-8');
     } else {

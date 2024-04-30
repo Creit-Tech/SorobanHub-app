@@ -18,11 +18,18 @@ git clone git@github.com:Creit-Tech/SorobanHub-app.git
 pnpm i
 ```
 
-#### Build the backend files
+#### Build the required files
 ```shell
 make build-front
 make build-back
-make start-desktop
+make copy-files
+```
+
+#### After you have built the required files, move to the desktop app folder and start the app
+```shell
+cd apps/soroban-hub
+npm i
+npm run start
 ```
 
 ## Config files
