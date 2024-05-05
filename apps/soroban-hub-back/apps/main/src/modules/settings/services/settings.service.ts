@@ -18,6 +18,10 @@ export class SettingsService {
   salt: string;
 
   constructor() {
+    this.init();
+  }
+
+  private init() {
     this.confirmAndCreateFolder();
     if (existsSync(this.saltFilePath)) {
       this.salt = readFileSync(this.saltFilePath, 'utf-8');
@@ -60,6 +64,7 @@ export class SettingsService {
   nuke(): void {
     this.salt = null;
     rmSync(this.folderPath, { recursive: true });
+    this.init();
   }
 }
 

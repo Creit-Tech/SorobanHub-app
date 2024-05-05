@@ -7,7 +7,7 @@ import { Networks } from '@stellar/stellar-sdk';
 import { IdentitiesRepository, Identity, IdentityType } from '../../../../state/identities/identities.repository';
 import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
 import { setEntities } from '@ngneat/elf-entities';
-import { Project } from '../../../../state/projects/projects.repository';
+import { LockScreenService } from '../../../../core/services/lock-screen/lock-screen.service';
 
 @Component({
   selector: 'app-onboarding',
@@ -50,7 +50,8 @@ export class OnboardingComponent {
     private readonly matSnackBar: MatSnackBar,
     private readonly router: Router,
     private readonly identitiesRepository: IdentitiesRepository,
-    private readonly networksRepository: NetworksRepository
+    private readonly networksRepository: NetworksRepository,
+    private readonly lockScreenService: LockScreenService
   ) {}
 
   async confirm(): Promise<void> {
@@ -68,6 +69,8 @@ export class OnboardingComponent {
       databaseUrl: this.mongodbURIControl.value as string,
       password: this.passwordControl.value as string,
     });
+
+    await this.lockScreenService.unlock(this.passwordControl.value as string);
 
     this.identitiesRepository.store.update(
       setEntities([
