@@ -5,12 +5,16 @@ import { EncryptionService, EncryptResponse } from '~library/encryption';
 import { SettingFile, SettingFolder, SettingsService } from '../services/settings.service';
 import { SetConfigPayloadDto } from './dtos/set-config.dto';
 import { GetStatePayloadDto, RemoveStatePayloadDto, SetStatePayloadDto } from './dtos/set-state.dto';
+import { BrowserWindow } from 'electron';
+import { Window } from '@doubleshot/nest-electron';
 
 @Controller('settings')
 export class SettingsController implements OnModuleInit {
   logger: Logger = new Logger(SettingsController.name);
 
   constructor(
+    @Window()
+    private readonly win: BrowserWindow,
     private readonly encryptionService: EncryptionService,
     private readonly settingsService: SettingsService
   ) {}
@@ -98,5 +102,11 @@ export class SettingsController implements OnModuleInit {
   @IpcHandle('state/remove-item')
   async removeStateItem(@Payload(new ValidationPipe()) payload: RemoveStatePayloadDto): Promise<void> {
     this.settingsService.removeSetting({ fileName: payload.key, folder: SettingFolder.STATE });
+  }
+
+  @IpcHandle('nuke')
+  async nuke(): Promise<void> {
+    this.settingsService.nuke();
+    this.win.reload();
   }
 }

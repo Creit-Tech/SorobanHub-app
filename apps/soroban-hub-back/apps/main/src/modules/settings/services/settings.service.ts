@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { resolve as pathResolve } from 'node:path';
 import { homedir } from 'node:os';
-import { mkdirSync, readFileSync, unlinkSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, readFileSync, unlinkSync, writeFileSync, existsSync, rmSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 
 @Injectable()
@@ -55,6 +55,11 @@ export class SettingsService {
   removeSetting(params: { fileName: SettingFile; folder?: string }) {
     const filePath: string = pathResolve(this.folderPath, params.folder || '', `${params.fileName}.json`);
     unlinkSync(filePath);
+  }
+
+  nuke(): void {
+    this.salt = null;
+    rmSync(this.folderPath, { recursive: true });
   }
 }
 

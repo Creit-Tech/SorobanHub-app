@@ -4,12 +4,11 @@ import { BrowserWindow } from 'electron';
 import { resolve } from 'node:path';
 import { SettingsModule } from './modules/settings/settings.module';
 import { AppMenuService } from './core/services/app-menu/app-menu.service';
-import { format } from 'node:url';
 
 @Module({
   imports: [
     ElectronModule.registerAsync({
-      // name: 'main', // default window names "main", you can skip the name if only provide one window
+      isGlobal: true,
       useFactory: async (): Promise<BrowserWindow> => {
         const win: BrowserWindow = new BrowserWindow({
           minWidth: 1200,

@@ -17,4 +17,10 @@ import { Component } from '@angular/core';
     `,
   ],
 })
-export class SettingsComponent {}
+export class SettingsComponent {
+  nuke(): void {
+    if (confirm('Are you sure? this will delete EVERYTHING from your app. Confirm if you want to continue.')) {
+      window.ipcAPI.invoke({ route: 'settings/nuke', msg: undefined }).then();
+    }
+  }
+}
