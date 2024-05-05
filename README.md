@@ -34,5 +34,5 @@ npm run start
 
 ## Config files
 
-The app will save the configuration files at `~/.SorobanHub`, if you want to re-start the whole app you can remove this folder
+The app will save the configuration files at `~/.SorobanHub`, if you want to re-start the whole app you can remove this folder or clicking in the "bomb" icon at the settings page
 

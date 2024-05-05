@@ -6,6 +6,7 @@ module.exports = {
     asar: true,
     name: 'SorobanHub',
     appBundleId: 'com.sorobanhub.app',
+    icon: 'src/assets/icons/icon',
   },
   rebuildConfig: {},
   makers: [
