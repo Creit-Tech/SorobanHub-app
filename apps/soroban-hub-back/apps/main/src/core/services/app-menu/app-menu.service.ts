@@ -10,7 +10,6 @@ export class AppMenuService {
     const isMac: boolean = process.platform === 'darwin';
 
     const template = [
-      // { role: 'appMenu' }
       ...(isMac
         ? [
             {
@@ -29,7 +28,6 @@ export class AppMenuService {
             },
           ]
         : []),
-      // { role: 'fileMenu' }
       {
         label: 'Projects',
         submenu: [
@@ -53,7 +51,6 @@ export class AppMenuService {
           },
         ],
       },
-      // { role: 'editMenu' }
       {
         label: 'Edit',
         submenu: [
@@ -75,32 +72,6 @@ export class AppMenuService {
                 },
               ]
             : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
-        ],
-      },
-      // { role: 'viewMenu' }
-      {
-        label: 'View',
-        submenu: [
-          { role: 'reload' },
-          { role: 'forceReload' },
-          { role: 'toggleDevTools' },
-          { type: 'separator' },
-          { role: 'resetZoom' },
-          { role: 'zoomIn' },
-          { role: 'zoomOut' },
-          { type: 'separator' },
-          { role: 'togglefullscreen' },
-        ],
-      },
-      // { role: 'windowMenu' }
-      {
-        label: 'Window',
-        submenu: [
-          { role: 'minimize' },
-          { role: 'zoom' },
-          ...(isMac
-            ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }]
-            : [{ role: 'close' }]),
         ],
       },
       {
