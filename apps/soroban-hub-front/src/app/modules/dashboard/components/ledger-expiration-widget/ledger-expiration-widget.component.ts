@@ -151,6 +151,12 @@ export class LedgerExpirationWidgetComponent {
     const project: Project = this.project$.getValue()!;
     const identity: Identity | undefined = this.identitiesRepository.store.query(getEntity(project.defaultIdentityId));
     const network: Network | undefined = this.networksRepository.store.query(getEntity(project.networkId));
+    const liveUntilLedgerSeq = await firstValueFrom(this.liveUntilLedgerSeq$);
+
+    if (!liveUntilLedgerSeq) {
+      // TODO: toast this
+      return;
+    }
 
     if (!this.bumpFormControl.value || this.bumpFormControl.invalid) {
       this.matSnackBar.open(`Ledgers to bump value is incorrect`, 'close', { duration: 5000 });
@@ -195,7 +201,7 @@ export class LedgerExpirationWidgetComponent {
       .setTimeout(0)
       .addOperation(
         Operation.extendFootprintTtl({
-          extendTo: networkLedgerData.value + parseInt(this.bumpFormControl.value as any, 10),
+          extendTo: liveUntilLedgerSeq - networkLedgerData.value + parseInt(this.bumpFormControl.value as any, 10),
         })
       )
       .setSorobanData(
