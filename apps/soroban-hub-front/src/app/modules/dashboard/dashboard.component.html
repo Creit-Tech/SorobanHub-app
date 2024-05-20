@@ -92,6 +92,14 @@
                                                   [widget]="widget">
                     </app-ledger-expiration-widget>
                   }
+
+                  @case (WidgetType.FUNCTION_CALL) {
+                    <app-function-call-widget class="block col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 3xl:col-span-2"
+                                              [project]="activeProject"
+                                              [widget]="widget">
+
+                    </app-function-call-widget>
+                  }
                 }
               }
             </section>

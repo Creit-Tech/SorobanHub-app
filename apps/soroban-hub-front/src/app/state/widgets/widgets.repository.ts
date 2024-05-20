@@ -29,7 +29,39 @@ export interface LedgerKeyExpirationWidget extends WidgetBase {
   type: WidgetType.LEDGER_KEY_EXPIRATION;
 }
 
-export type Widget = LedgerKeyExpirationWidget;
+export enum FunctionCallParameterType {
+  string = 'string',
+  symbol = 'symbol',
+  address = 'address',
+  hash = 'hash',
+  vec = 'vec',
+  map = 'map',
+  mapEntry = 'mapEntry',
+  i256 = 'i256',
+  u256 = 'u256',
+  i128 = 'i128',
+  u128 = 'u128',
+  i64 = 'i64',
+  u64 = 'u64',
+  i32 = 'i32',
+  u32 = 'u32',
+}
+
+export interface FunctionCallWidgetParameter {
+  name: string;
+  type: FunctionCallParameterType;
+  children: FunctionCallWidget['parameters'];
+}
+
+export interface FunctionCallWidget extends WidgetBase {
+  fnName: string;
+  source?: string;
+  contractId: string;
+  type: WidgetType.FUNCTION_CALL;
+  parameters: FunctionCallWidgetParameter[];
+}
+
+export type Widget = LedgerKeyExpirationWidget | FunctionCallWidget;
 
 export interface WidgetsProps {}
 
