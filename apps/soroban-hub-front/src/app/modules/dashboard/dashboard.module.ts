@@ -23,6 +23,7 @@ import { CdkContextMenuTrigger, CdkMenu, CdkMenuItem } from '@angular/cdk/menu';
 import { FunctionCallWidgetComponent } from './components/function-call-widget/function-call-widget.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { MatSelect } from '@angular/material/select';
+import { InstallWasmWidgetComponent } from './components/install-wasm-widget/install-wasm-widget.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { MatSelect } from '@angular/material/select';
     ProjectViewComponent,
     LedgerExpirationWidgetComponent,
     FunctionCallWidgetComponent,
+    InstallWasmWidgetComponent,
   ],
   imports: [
     CommonModule,

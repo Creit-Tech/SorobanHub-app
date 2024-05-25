@@ -12,6 +12,7 @@ export enum WidgetType {
   LEDGER_KEY_WATCHER = 'LEDGER_KEY_WATCHER',
   FUNCTION_CALL = 'FUNCTION_CALL',
   EVENTS_TRACKER = 'EVENTS_TRACKER',
+  INSTALL_WASM = 'INSTALL_WASM',
 }
 
 export interface WidgetBase {
@@ -61,7 +62,13 @@ export interface FunctionCallWidget extends WidgetBase {
   parameters: FunctionCallWidgetParameter[];
 }
 
-export type Widget = LedgerKeyExpirationWidget | FunctionCallWidget;
+export interface InstallWASMWidget extends WidgetBase {
+  source?: string;
+  type: WidgetType.INSTALL_WASM;
+  pathToFile: string;
+}
+
+export type Widget = LedgerKeyExpirationWidget | FunctionCallWidget | InstallWASMWidget;
 
 export interface WidgetsProps {}
 

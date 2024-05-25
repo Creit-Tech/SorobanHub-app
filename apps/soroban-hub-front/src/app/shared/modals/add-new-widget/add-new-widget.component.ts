@@ -11,6 +11,7 @@ import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } fr
 import {
   FunctionCallParameterType,
   FunctionCallWidget,
+  InstallWASMWidget,
   LedgerKeyExpirationWidget,
   Widget,
   WidgetsRepository,
@@ -26,6 +27,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { emitOnce } from '@ngneat/elf';
 import { updateEntities, upsertEntities } from '@ngneat/elf-entities';
 import { NetworkLedgerService } from '../../../core/services/network-ledger/network-ledger.service';
+import { NativeDialogsService } from '../../../core/services/native-dialogs/native-dialogs.service';
 
 @Component({
   selector: 'app-add-new-widget',
@@ -69,6 +71,11 @@ export class AddNewWidgetComponent {
     parameters: new FormArray<FormGroup<FunctionCallParameter>>([]),
   });
 
+  installWasmForm: FormGroup<InstallWasmForm> = new FormGroup<InstallWasmForm>({
+    source: new FormControl<string | null>(null),
+    pathToFile: new FormControl<string | null>(null, [Validators.required]),
+  });
+
   projects$: Observable<Project[]> = this.projectsRepository.projects$;
   activeProjectViews$: Observable<ProjectView[]> = this.projectsRepository.activeProjectViews$;
 
@@ -81,7 +88,8 @@ export class AddNewWidgetComponent {
     private readonly matSnackBar: MatSnackBar,
     private readonly projectsRepository: ProjectsRepository,
     private readonly widgetsRepository: WidgetsRepository,
-    private readonly networkLedgerService: NetworkLedgerService
+    private readonly networkLedgerService: NetworkLedgerService,
+    private readonly nativeDialogsService: NativeDialogsService
   ) {}
 
   confirm(): void {
@@ -125,6 +133,21 @@ export class AddNewWidgetComponent {
         } satisfies FunctionCallWidget;
         break;
 
+      case WidgetType.INSTALL_WASM:
+        if (this.installWasmForm.invalid) {
+          return;
+        }
+        newWidget = {
+          _id: crypto.randomUUID(),
+          project: this.baseForm.value.project as string,
+          projectView: this.baseForm.value.projectView as string,
+          name: this.baseForm.value.name as string,
+          type: WidgetType.INSTALL_WASM,
+          pathToFile: this.installWasmForm.value.pathToFile as string,
+          source: this.installWasmForm.value.source as string,
+        } satisfies InstallWASMWidget;
+        break;
+
       case WidgetType.LEDGER_KEY_WATCHER:
       case WidgetType.EVENTS_TRACKER:
       default:
@@ -158,6 +181,11 @@ export class AddNewWidgetComponent {
       })
     );
   }
+
+  async searchFilePath(): Promise<void> {
+    const filePath: string = await this.nativeDialogsService.filePath();
+    this.installWasmForm.controls.pathToFile.setValue(filePath);
+  }
 }
 
 export interface BaseForm {
@@ -183,4 +211,9 @@ export interface FunctionCallForm {
   fnName: FormControl<string | null>;
   contractId: FormControl<string | null>;
   parameters: FormArray<FormGroup<FunctionCallParameter>>;
+}
+
+export interface InstallWasmForm {
+  source: FormControl<string | null>;
+  pathToFile: FormControl<string | null>;
 }

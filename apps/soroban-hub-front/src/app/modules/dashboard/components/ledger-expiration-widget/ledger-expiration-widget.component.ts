@@ -194,6 +194,7 @@ export class LedgerExpirationWidgetComponent {
       return;
     }
 
+    account.incrementSequenceNumber();
     const tx: Transaction = new TransactionBuilder(account, {
       fee: '10000000',
       networkPassphrase: network.networkPassphrase,

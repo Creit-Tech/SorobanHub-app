@@ -4,6 +4,7 @@ import { BrowserWindow } from 'electron';
 import { resolve } from 'node:path';
 import { SettingsModule } from './modules/settings/settings.module';
 import { AppMenuService } from './core/services/app-menu/app-menu.service';
+import { UtilsModule } from './modules/utils/utils.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AppMenuService } from './core/services/app-menu/app-menu.service';
       },
     }),
     SettingsModule,
+    UtilsModule,
   ],
   controllers: [],
   providers: [AppMenuService],
