@@ -80,7 +80,7 @@
       <mat-tab-group class="col-span-1 overflow-y-auto"
                      (selectedIndexChange)="activeProjectViewTab$.next($event)"
                      mat-stretch-tabs="false" mat-align-tabs="start"
-                     [animationDuration]="300">
+                     [animationDuration]="0">
         @for (activeProjectView of activeProjectViews; track activeProjectView._id) {
           <mat-tab [label]="activeProjectView.name">
             <section class="w-full p-[1rem] grid grid-cols-12 gap-[1rem]">
@@ -91,6 +91,27 @@
                                                   [project]="activeProject"
                                                   [widget]="widget">
                     </app-ledger-expiration-widget>
+                  }
+
+                  @case (WidgetType.FUNCTION_CALL) {
+                    <app-function-call-widget class="block col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 3xl:col-span-2"
+                                              [project]="activeProject"
+                                              [widget]="widget">
+                    </app-function-call-widget>
+                  }
+
+                  @case (WidgetType.INSTALL_WASM) {
+                    <app-install-wasm-widget class="block col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 3xl:col-span-2"
+                                             [project]="activeProject"
+                                             [widget]="widget">
+                    </app-install-wasm-widget>
+                  }
+
+                  @case (WidgetType.DEPLOY_SAC) {
+                    <app-deploy-sac  class="block col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 3xl:col-span-2"
+                                     [project]="activeProject"
+                                     [widget]="widget">
+                    </app-deploy-sac>
                   }
                 }
               }

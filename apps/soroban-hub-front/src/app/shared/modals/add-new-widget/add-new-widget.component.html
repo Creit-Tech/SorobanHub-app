@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>Add a new widget</h2>
 
-<mat-dialog-content class="w-[25rem]">
+<mat-dialog-content class="w-[30rem]">
   <section [formGroup]="baseForm" class="w-full flex flex-col">
     <mat-form-field>
       <mat-label>Project</mat-label>
@@ -29,10 +29,10 @@
       <mat-label>Widget Type</mat-label>
       <mat-select formControlName="type" required>
         @for (widgetType of widgetTypes; track widgetType) {
-          <mat-option [disabled]="widgetType !== WidgetType.LEDGER_KEY_EXPIRATION"
+          <mat-option [disabled]="widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM && widgetType !== WidgetType.DEPLOY_SAC"
                       [value]="widgetType">
             {{ widgetType }}
-            @if (widgetType !== WidgetType.LEDGER_KEY_EXPIRATION) {
+            @if (widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM && widgetType !== WidgetType.DEPLOY_SAC) {
               (coming soon)
             }
           </mat-option>
@@ -42,7 +42,7 @@
 
     @switch (baseForm.value.type) {
       @case (WidgetType.LEDGER_KEY_EXPIRATION) {
-        <ng-container [formGroup]="ledgerKeyForm" class="w-full mb-auto">
+        <ng-container [formGroup]="ledgerKeyForm">
           <mat-form-field>
             <mat-label>Type</mat-label>
             <mat-select formControlName="type" required>
@@ -60,11 +60,116 @@
           </mat-form-field>
         </ng-container>
       }
+
+      @case (WidgetType.FUNCTION_CALL) {
+        <ng-container [formGroup]="functionCallForm">
+          <mat-form-field>
+            <mat-label>Source (optional)</mat-label>
+            <input formControlName="source" matInput placeholder="Transaction source">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Function name</mat-label>
+            <input formControlName="fnName" matInput placeholder="Ex: mint">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Contract ID</mat-label>
+            <input formControlName="contractId" matInput>
+          </mat-form-field>
+
+          <h2 class="w-full text-center mb-[1rem]">Function parameters schema</h2>
+
+          <ng-container [ngTemplateOutlet]="FunctionCallParameters"
+                        [ngTemplateOutletContext]="{ formArray: functionCallForm.controls.parameters }">
+          </ng-container>
+
+          <button (click)="addFunctionCallParameter(functionCallForm.controls.parameters)" class="mx-auto mb-[1rem]" mat-raised-button>Add parameter</button>
+        </ng-container>
+
+        <ng-template let-control="control" #FormFieldTemplate>
+          <mat-form-field class="w-4/12">
+            <mat-label>Type</mat-label>
+            <mat-select [formControl]="control.controls.type" required>
+              @for (type of FunctionCallParameterTypes; track type) {
+                <mat-option [value]="type">{{ type }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field class="w-8/12">
+            <mat-label>Name</mat-label>
+            <input [formControl]="control.controls.name" matInput placeholder="Ex: mint" required>
+          </mat-form-field>
+        </ng-template>
+
+        <ng-template let-formArray="formArray" #FunctionCallParameters>
+          @for (control of $any(formArray.controls); track control) {
+            <ng-container [formGroup]="control">
+              <div class="w-full flex relative">
+                <button (click)="formArray.removeAt($index)" class="absolute top-[-0.5rem] right-[-0.5rem] z-10" mat-icon-button>
+                  <mat-icon>close</mat-icon>
+                </button>
+
+                <ng-container [ngTemplateOutlet]="FormFieldTemplate"
+                              [ngTemplateOutletContext]="{ control: control }">
+                </ng-container>
+              </div>
+
+              @if (control.value.type === 'vec' || control.value.type === 'map' || control.value.type === 'mapEntry') {
+                <div class="w-full flex flex-col pl-[2rem]" style="border-left: solid 1px #ccc">
+                  <div class="w-full flex flex-col">
+                    <ng-container [ngTemplateOutlet]="FunctionCallParameters"
+                                  [ngTemplateOutletContext]="{ formArray: control.controls.children }">
+                    </ng-container>
+                  </div>
+
+                  <button (click)="addFunctionCallParameter(control.controls.children)"
+                          mat-raised-button class="mb-[1rem]">
+                    Add item
+                  </button>
+                </div>
+              }
+            </ng-container>
+          }
+        </ng-template>
+      }
+
+      @case (WidgetType.INSTALL_WASM) {
+        <ng-container [formGroup]="installWasmForm">
+          <mat-form-field>
+            <mat-label>Source (optional)</mat-label>
+            <input formControlName="source" matInput placeholder="Transaction source">
+          </mat-form-field>
+
+          <mat-form-field required (click)="searchFilePath()">
+            <mat-label>File path</mat-label>
+            <input formControlName="pathToFile" matInput placeholder="Ex: ~/contract.wasm">
+          </mat-form-field>
+        </ng-container>
+      }
+      @case (WidgetType.DEPLOY_SAC) {
+        <ng-container [formGroup]="deploySACForm">
+          <mat-form-field>
+            <mat-label>Source (optional)</mat-label>
+            <input formControlName="source" matInput placeholder="Transaction source">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Code</mat-label>
+            <input formControlName="code" matInput placeholder="Ex: USDC" required>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Issuer</mat-label>
+            <input formControlName="issuer" matInput placeholder="Public key or nothing if is the native asset">
+          </mat-form-field>
+        </ng-container>
+      }
     }
   </section>
 
   <button (click)="confirm()"
-          [disabled]="baseForm.invalid || ledgerKeyForm.invalid"
           mat-raised-button color="primary" class="w-full">
     Confirm
   </button>

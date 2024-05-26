@@ -1,0 +1,78 @@
+@if (widget$ | async; as widget) {
+  <mat-card>
+    <mat-card-header class="text-[1.25rem]">
+      <div class="w-full flex justify-between items-center">
+        <span>{{ widget.name }}</span>
+
+        <button (click)="remove()" mat-icon-button>
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-card-subtitle>
+        Contract function call widget
+      </mat-card-subtitle>
+
+      <ul class="py-[0.5rem] text-[0.75rem]">
+        <li>
+          <b>Source:</b> {{ widget.source || 'N/A' }}
+        </li>
+        <li>
+          <b>Function name:</b> {{ widget.fnName }}
+        </li>
+        <li [cdkCopyToClipboard]="widget.contractId" class="cursor-pointer">
+          <b>Contract ID:</b> {{ widget.contractId | slice: 0: 4 }}....{{ widget.contractId | slice: -4 }}
+        </li>
+      </ul>
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button (click)="openModal()" class="w-full" mat-raised-button color="primary">Execute</button>
+    </mat-card-actions>
+  </mat-card>
+
+  <ng-template #parametersModal>
+    <mat-card class="w-[30rem]">
+      <mat-card-header class="mb-[1rem]">Function parameters</mat-card-header>
+
+      <mat-card-content>
+        @for (control of parametersArrayForm.controls; track control) {
+          <ng-container [ngTemplateOutlet]="parameterItem"
+                        [ngTemplateOutletContext]="{ control }">
+          </ng-container>
+        }
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button (click)="onConfirm()" class="w-full" mat-raised-button color="primary">
+          Confirm
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </ng-template>
+}
+
+<ng-template let-control="control" #parameterItem>
+  @if (control.value.type !== FunctionCallParameterType.vec && control.value.type !== FunctionCallParameterType.map && control.value.type !== FunctionCallParameterType.mapEntry) {
+    <mat-form-field class="w-full">
+      <mat-label>{{ control.value.name }}</mat-label>
+      <input [formControl]="control.controls.value" matInput required>
+    </mat-form-field>
+  } @else {
+    <div class="w-full flex flex-col mb-[1rem]">
+      <h3 class="w-full mb-[1rem]">{{ control.value.name }}</h3>
+
+      <div class="w-full pl-[2rem]" style="border-left: solid 1px #ccc">
+        @for (child of $any(control.controls.children.controls); track child) {
+          <ng-container [ngTemplateOutlet]="parameterItem"
+                        [ngTemplateOutletContext]="{ control: child }">
+          </ng-container>
+        }
+      </div>
+    </div>
+  }
+</ng-template>
+
+

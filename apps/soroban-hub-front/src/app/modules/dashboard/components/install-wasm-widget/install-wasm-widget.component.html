@@ -1,0 +1,43 @@
+@if (widget$ | async; as widget) {
+  <mat-card>
+    <mat-card-header class="text-[1.25rem]">
+      <div class="w-full flex justify-between items-center">
+        <span>{{ widget.name }}</span>
+
+        <button (click)="remove()" mat-icon-button>
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-card-subtitle>
+        Install WASM widget
+      </mat-card-subtitle>
+
+      <ul class="py-[0.5rem] text-[0.75rem]">
+        <li>
+          <b>File:</b> {{ fileName$ | async }}
+        </li>
+
+        @if (widget.source; as source) {
+          <li>
+            <b>Source account:</b> {{ source | slice: 0: 4 }}....{{ source | slice: -4 }}
+          </li>
+        }
+
+        @if (fileDataHash$ | async; as fileDataHash) {
+          <li class="cursor-pointer" [cdkCopyToClipboard]="fileDataHash">
+            <b>Contract hash:</b> {{ fileDataHash | slice: 0: 4 }}....{{ fileDataHash | slice: -4 }}
+          </li>
+        }
+      </ul>
+    </mat-card-content>
+
+    <mat-card-actions class="w-full flex flex-col">
+      <button (click)="install()" class="w-full" mat-raised-button color="primary">
+        Install
+      </button>
+    </mat-card-actions>
+  </mat-card>
+}
