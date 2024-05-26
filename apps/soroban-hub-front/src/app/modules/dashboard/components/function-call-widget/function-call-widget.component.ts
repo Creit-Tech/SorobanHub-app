@@ -24,6 +24,7 @@ import {
 } from '@stellar/stellar-sdk';
 import { Buffer } from 'buffer';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
 
 @Component({
   selector: 'app-function-call-widget',
@@ -48,7 +49,9 @@ export class FunctionCallWidgetComponent {
     this.formBuilder(data.parameters);
   }
 
-  parametersArrayForm: FormArray<FormGroup<FormArrayParameterItem>> = new FormArray<FormGroup<FormArrayParameterItem>>([]);
+  parametersArrayForm: FormArray<FormGroup<FormArrayParameterItem>> = new FormArray<FormGroup<FormArrayParameterItem>>(
+    []
+  );
 
   constructor(
     private readonly widgetsRepository: WidgetsRepository,
@@ -124,7 +127,15 @@ export class FunctionCallWidgetComponent {
       .addOperation(contract.call(widget.fnName, ...parameters))
       .build();
 
-    console.log(tx.toXDR());
+    const sim = await rpc.simulateTransaction(tx);
+
+    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+
+    this.matDialog.open(XdrExportComponent, {
+      data: {
+        tx: finalTx,
+      },
+    });
   }
 
   createFnArgs(formArray: FormArray<FormGroup<FormArrayParameterItem>>): xdr.ScVal[] {
@@ -135,11 +146,18 @@ export class FunctionCallWidgetComponent {
         items.push(xdr.ScVal.scvVec(this.createFnArgs(formArrayElement.controls.children)));
       } else if (formArrayElement.value.type === FunctionCallParameterType.map) {
         const map: xdr.ScVal = xdr.ScVal.scvMap(
-          formArrayElement.controls.children.controls.map(control =>
-            new xdr.ScMapEntry({
-              key: this.parameterParser(control.controls.children.value[0].type!, control.controls.children.value[1].value!),
-              val: this.parameterParser(control.controls.children.value[0].type!, control.controls.children.value[1].type!),
-            })
+          formArrayElement.controls.children.controls.map(
+            control =>
+              new xdr.ScMapEntry({
+                key: this.parameterParser(
+                  control.controls.children.value[0].type!,
+                  control.controls.children.value[1].value!
+                ),
+                val: this.parameterParser(
+                  control.controls.children.value[0].type!,
+                  control.controls.children.value[1].type!
+                ),
+              })
           )
         );
 
