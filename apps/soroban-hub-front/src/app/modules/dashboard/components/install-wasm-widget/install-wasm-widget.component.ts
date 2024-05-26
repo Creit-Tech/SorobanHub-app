@@ -1,15 +1,12 @@
 import { Component, DestroyRef, Input } from '@angular/core';
-import {
-  InstallWASMWidget,
-  WidgetsRepository,
-} from '../../../../state/widgets/widgets.repository';
+import { InstallWASMWidget, WidgetsRepository } from '../../../../state/widgets/widgets.repository';
 import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
 import { NetworkLedgerService } from '../../../../core/services/network-ledger/network-ledger.service';
 import { NetworkLedgerData, NetworkLedgerRepository } from '../../../../state/network-ledger/network-ledger.repository';
 import { IdentitiesRepository, Identity } from '../../../../state/identities/identities.repository';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, firstValueFrom, map, Observable } from 'rxjs';
+import { BehaviorSubject, distinctUntilKeyChanged, filter, firstValueFrom, map, Observable, switchMap } from 'rxjs';
 import { Project } from '../../../../state/projects/projects.repository';
 import { FilesService } from '../../../../core/services/files/files.service';
 import { Buffer } from 'buffer';
@@ -50,6 +47,16 @@ export class InstallWasmWidgetComponent {
     })
   );
 
+  fileDataHash$: Observable<string> = this.widget$.asObservable().pipe(
+    filter(Boolean),
+    distinctUntilKeyChanged('_id'),
+    map((widget: InstallWASMWidget): string => widget.pathToFile),
+    switchMap(async (pathToFile: string): Promise<string> => {
+      const contractData: Buffer = await this.filesService.fileData(pathToFile);
+      return hash(contractData).toString('hex');
+    })
+  );
+
   constructor(
     private readonly networksRepository: NetworksRepository,
     private readonly networkLedgerService: NetworkLedgerService,
@@ -59,9 +66,8 @@ export class InstallWasmWidgetComponent {
     private readonly identitiesRepository: IdentitiesRepository,
     private readonly matSnackBar: MatSnackBar,
     private readonly matDialog: MatDialog,
-    private readonly filesService: FilesService,
+    private readonly filesService: FilesService
   ) {}
-
 
   // TODO: it could be a good idea to check if the WASM is already installed and notify if that's the case
   async install() {
@@ -77,15 +83,6 @@ export class InstallWasmWidgetComponent {
 
     if (!network) {
       this.matSnackBar.open(`Network is undefined, contact support`, 'close', { duration: 5000 });
-      return;
-    }
-
-    const networkLedgerData: NetworkLedgerData | undefined = await firstValueFrom(
-      this.networkLedgerRepository.getNetwork(network.networkPassphrase)
-    );
-
-    if (!networkLedgerData) {
-      this.matSnackBar.open(`Network ledger data is undefined, contact support`, 'close', { duration: 5000 });
       return;
     }
 
@@ -124,11 +121,11 @@ export class InstallWasmWidgetComponent {
         })
       )
       .setSorobanData(
-        new SorobanDataBuilder().setReadWrite([
-          xdr.LedgerKey.contractCode(new xdr.LedgerKeyContractCode({ hash: contractDataHash }))
-        ]).build()
+        new SorobanDataBuilder()
+          .setReadWrite([xdr.LedgerKey.contractCode(new xdr.LedgerKeyContractCode({ hash: contractDataHash }))])
+          .build()
       )
-      .build()
+      .build();
 
     const sim = await rpc.simulateTransaction(tx);
 
@@ -139,7 +136,6 @@ export class InstallWasmWidgetComponent {
         tx: finalTx,
       },
     });
-
   }
 
   async remove(): Promise<void> {

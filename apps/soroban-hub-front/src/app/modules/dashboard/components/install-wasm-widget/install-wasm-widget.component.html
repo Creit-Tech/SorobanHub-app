@@ -22,7 +22,13 @@
 
         @if (widget.source; as source) {
           <li>
-            <b>Source account:</b> {{ source | slice: 0: 6 }}....{{ source | slice: -6 }}
+            <b>Source account:</b> {{ source | slice: 0: 4 }}....{{ source | slice: -4 }}
+          </li>
+        }
+
+        @if (fileDataHash$ | async; as fileDataHash) {
+          <li class="cursor-pointer" [cdkCopyToClipboard]="fileDataHash">
+            <b>Contract hash:</b> {{ fileDataHash | slice: 0: 4 }}....{{ fileDataHash | slice: -4 }}
           </li>
         }
       </ul>

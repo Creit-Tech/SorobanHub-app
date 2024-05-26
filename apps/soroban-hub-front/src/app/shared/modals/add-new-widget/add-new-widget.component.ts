@@ -9,6 +9,7 @@ import {
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
+  DeploySACWidget,
   FunctionCallParameterType,
   FunctionCallWidget,
   InstallWASMWidget,
@@ -74,6 +75,12 @@ export class AddNewWidgetComponent {
   installWasmForm: FormGroup<InstallWasmForm> = new FormGroup<InstallWasmForm>({
     source: new FormControl<string | null>(null),
     pathToFile: new FormControl<string | null>(null, [Validators.required]),
+  });
+
+  deploySACForm: FormGroup<DeploySACForm> = new FormGroup<DeploySACForm>({
+    source: new FormControl<string | null>(null),
+    code: new FormControl<string | null>(null, [Validators.required]),
+    issuer: new FormControl<string | null>(null),
   });
 
   projects$: Observable<Project[]> = this.projectsRepository.projects$;
@@ -148,6 +155,21 @@ export class AddNewWidgetComponent {
         } satisfies InstallWASMWidget;
         break;
 
+      case WidgetType.DEPLOY_SAC:
+        if (this.deploySACForm.invalid) {
+          return;
+        }
+        newWidget = {
+          _id: crypto.randomUUID(),
+          project: this.baseForm.value.project as string,
+          projectView: this.baseForm.value.projectView as string,
+          name: this.baseForm.value.name as string,
+          type: WidgetType.DEPLOY_SAC,
+          code: this.deploySACForm.value.code as string,
+          issuer: this.deploySACForm.value.issuer as string,
+        } satisfies DeploySACWidget;
+        break;
+
       case WidgetType.LEDGER_KEY_WATCHER:
       case WidgetType.EVENTS_TRACKER:
       default:
@@ -216,4 +238,10 @@ export interface FunctionCallForm {
 export interface InstallWasmForm {
   source: FormControl<string | null>;
   pathToFile: FormControl<string | null>;
+}
+
+export interface DeploySACForm {
+  source: FormControl<string | null>;
+  code: FormControl<string | null>;
+  issuer: FormControl<string | null>;
 }

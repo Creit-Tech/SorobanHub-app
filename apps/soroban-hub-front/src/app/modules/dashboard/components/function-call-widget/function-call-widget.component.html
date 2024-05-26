@@ -23,7 +23,7 @@
           <b>Function name:</b> {{ widget.fnName }}
         </li>
         <li [cdkCopyToClipboard]="widget.contractId" class="cursor-pointer">
-          <b>Contract ID:</b> {{ widget.contractId | slice: 0: 6 }}....{{ widget.contractId | slice: -6 }}
+          <b>Contract ID:</b> {{ widget.contractId | slice: 0: 4 }}....{{ widget.contractId | slice: -4 }}
         </li>
       </ul>
     </mat-card-content>

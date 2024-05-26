@@ -13,6 +13,7 @@ export enum WidgetType {
   FUNCTION_CALL = 'FUNCTION_CALL',
   EVENTS_TRACKER = 'EVENTS_TRACKER',
   INSTALL_WASM = 'INSTALL_WASM',
+  DEPLOY_SAC = 'DEPLOY_SAC',
 }
 
 export interface WidgetBase {
@@ -68,7 +69,14 @@ export interface InstallWASMWidget extends WidgetBase {
   pathToFile: string;
 }
 
-export type Widget = LedgerKeyExpirationWidget | FunctionCallWidget | InstallWASMWidget;
+export interface DeploySACWidget extends WidgetBase {
+  source?: string;
+  type: WidgetType.DEPLOY_SAC;
+  code: string;
+  issuer: string;
+}
+
+export type Widget = LedgerKeyExpirationWidget | FunctionCallWidget | InstallWASMWidget | DeploySACWidget;
 
 export interface WidgetsProps {}
 

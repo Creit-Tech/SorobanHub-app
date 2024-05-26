@@ -24,6 +24,7 @@ import { FunctionCallWidgetComponent } from './components/function-call-widget/f
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { MatSelect } from '@angular/material/select';
 import { InstallWasmWidgetComponent } from './components/install-wasm-widget/install-wasm-widget.component';
+import { DeploySacComponent } from './components/deploy-sac/deploy-sac.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { InstallWasmWidgetComponent } from './components/install-wasm-widget/ins
     LedgerExpirationWidgetComponent,
     FunctionCallWidgetComponent,
     InstallWasmWidgetComponent,
+    DeploySacComponent,
   ],
   imports: [
     CommonModule,

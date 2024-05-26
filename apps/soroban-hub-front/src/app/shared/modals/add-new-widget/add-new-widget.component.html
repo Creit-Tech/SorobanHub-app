@@ -29,10 +29,10 @@
       <mat-label>Widget Type</mat-label>
       <mat-select formControlName="type" required>
         @for (widgetType of widgetTypes; track widgetType) {
-          <mat-option [disabled]="widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM"
+          <mat-option [disabled]="widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM && widgetType !== WidgetType.DEPLOY_SAC"
                       [value]="widgetType">
             {{ widgetType }}
-            @if (widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM) {
+            @if (widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM && widgetType !== WidgetType.DEPLOY_SAC) {
               (coming soon)
             }
           </mat-option>
@@ -142,9 +142,27 @@
             <input formControlName="source" matInput placeholder="Transaction source">
           </mat-form-field>
 
-          <mat-form-field (click)="searchFilePath()">
+          <mat-form-field required (click)="searchFilePath()">
             <mat-label>File path</mat-label>
             <input formControlName="pathToFile" matInput placeholder="Ex: ~/contract.wasm">
+          </mat-form-field>
+        </ng-container>
+      }
+      @case (WidgetType.DEPLOY_SAC) {
+        <ng-container [formGroup]="deploySACForm">
+          <mat-form-field>
+            <mat-label>Source (optional)</mat-label>
+            <input formControlName="source" matInput placeholder="Transaction source">
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Code</mat-label>
+            <input formControlName="code" matInput placeholder="Ex: USDC" required>
+          </mat-form-field>
+
+          <mat-form-field>
+            <mat-label>Issuer</mat-label>
+            <input formControlName="issuer" matInput placeholder="Public key or nothing if is the native asset">
           </mat-form-field>
         </ng-container>
       }
