@@ -20,6 +20,7 @@ import {
 } from '@stellar/stellar-sdk';
 import { getEntity, selectEntity } from '@ngneat/elf-entities';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
+import { StellarService } from '../../../../core/services/stellar/stellar.service';
 
 @Component({
   selector: 'app-deploy-sac',
@@ -57,7 +58,8 @@ export class DeploySacComponent {
     private readonly widgetsRepository: WidgetsRepository,
     private readonly identitiesRepository: IdentitiesRepository,
     private readonly matSnackBar: MatSnackBar,
-    private readonly matDialog: MatDialog
+    private readonly matDialog: MatDialog,
+    private readonly stellarService: StellarService,
   ) {}
 
   // TODO: if the contract is already deployed, we should notify the user
@@ -110,9 +112,7 @@ export class DeploySacComponent {
       )
       .build();
 
-    const sim = await rpc.simulateTransaction(tx);
-
-    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+    const finalTx = await this.stellarService.simOrRestore({ tx, rpc });
 
     this.matDialog.open(XdrExportComponent, {
       data: {

@@ -22,6 +22,7 @@ import {
   xdr,
 } from '@stellar/stellar-sdk';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
+import { StellarService } from '../../../../core/services/stellar/stellar.service';
 
 @Component({
   selector: 'app-install-wasm-widget',
@@ -66,7 +67,8 @@ export class InstallWasmWidgetComponent {
     private readonly identitiesRepository: IdentitiesRepository,
     private readonly matSnackBar: MatSnackBar,
     private readonly matDialog: MatDialog,
-    private readonly filesService: FilesService
+    private readonly filesService: FilesService,
+    private readonly stellarService: StellarService
   ) {}
 
   // TODO: it could be a good idea to check if the WASM is already installed and notify if that's the case
@@ -127,9 +129,7 @@ export class InstallWasmWidgetComponent {
       )
       .build();
 
-    const sim = await rpc.simulateTransaction(tx);
-
-    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+    const finalTx = await this.stellarService.simOrRestore({ tx, rpc });
 
     this.matDialog.open(XdrExportComponent, {
       data: {

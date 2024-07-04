@@ -34,6 +34,7 @@ import { Buffer } from 'buffer';
 import { MatDialog } from '@angular/material/dialog';
 import { FormControl, Validators } from '@angular/forms';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
+import { StellarService } from '../../../../core/services/stellar/stellar.service';
 
 @Component({
   selector: 'app-ledger-expiration-widget',
@@ -119,7 +120,8 @@ export class LedgerExpirationWidgetComponent {
     private readonly widgetsRepository: WidgetsRepository,
     private readonly identitiesRepository: IdentitiesRepository,
     private readonly matSnackBar: MatSnackBar,
-    private readonly matDialog: MatDialog
+    private readonly matDialog: MatDialog,
+    private readonly stellarService: StellarService
   ) {}
 
   getKeySubscription: Subscription = combineLatest([
@@ -210,9 +212,7 @@ export class LedgerExpirationWidgetComponent {
       )
       .build();
 
-    const sim = await rpc.simulateTransaction(tx);
-
-    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+    const finalTx = await this.stellarService.simOrRestore({ tx, rpc });
 
     this.matDialog.open(XdrExportComponent, {
       data: {
@@ -260,13 +260,7 @@ export class LedgerExpirationWidgetComponent {
       )
       .build();
 
-    const sim = await rpc.simulateTransaction(tx);
-
-    if (!SorobanRpc.Api.isSimulationSuccess(sim)) {
-      throw new Error('Contract is not expired');
-    }
-
-    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+    const finalTx = await this.stellarService.simOrRestore({ tx, rpc });
 
     this.matDialog.open(XdrExportComponent, {
       data: {

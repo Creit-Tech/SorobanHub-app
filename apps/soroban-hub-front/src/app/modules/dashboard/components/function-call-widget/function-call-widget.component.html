@@ -16,9 +16,11 @@
       </mat-card-subtitle>
 
       <ul class="py-[0.5rem] text-[0.75rem]">
-        <li>
-          <b>Source:</b> {{ widget.source || 'N/A' }}
-        </li>
+        @if (widget.source) {
+          <li>
+            <b>Source:</b> {{ widget.source | slice: 0: 4 }}....{{ widget.source | slice: -4 }}
+          </li>
+        }
         <li>
           <b>Function name:</b> {{ widget.fnName }}
         </li>

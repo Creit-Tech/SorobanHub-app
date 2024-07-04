@@ -32,6 +32,7 @@ export interface LedgerKeyExpirationWidget extends WidgetBase {
 }
 
 export enum FunctionCallParameterType {
+  boolean = 'boolean',
   string = 'string',
   symbol = 'symbol',
   address = 'address',
