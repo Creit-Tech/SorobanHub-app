@@ -146,13 +146,15 @@ export class FunctionCallWidgetComponent {
         items.push(xdr.ScVal.scvVec(this.createFnArgs(formArrayElement.controls.children)));
       } else if (formArrayElement.value.type === FunctionCallParameterType.map) {
         const map: xdr.ScVal = xdr.ScVal.scvMap(
-          formArrayElement.controls.children.controls.map(
-            control =>
-              new xdr.ScMapEntry({
-                key: this.parameterParser(FunctionCallParameterType.symbol, control.value.name!),
-                val: this.parameterParser(control.value.type!, control.value.value!),
-              })
-          )
+          formArrayElement.controls.children.controls
+            .sort((a, b) => (a.value.name! > b.value.name! ? 1 : -1))
+            .map(
+              control =>
+                new xdr.ScMapEntry({
+                  key: this.parameterParser(FunctionCallParameterType.symbol, control.value.name!),
+                  val: this.parameterParser(control.value.type!, control.value.value!),
+                })
+            )
         );
 
         items.push(map);

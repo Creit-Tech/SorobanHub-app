@@ -9,6 +9,7 @@ import {
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { FormArray, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
+  DeployContractWidget,
   DeploySACWidget,
   FunctionCallParameterType,
   FunctionCallWidget,
@@ -72,7 +73,7 @@ export class AddNewWidgetComponent {
     parameters: new FormArray<FormGroup<FunctionCallParameter>>([]),
   });
 
-  installWasmForm: FormGroup<InstallWasmForm> = new FormGroup<InstallWasmForm>({
+  installOrDeployForm: FormGroup<InstallOrDeployWasmForm> = new FormGroup<InstallOrDeployWasmForm>({
     source: new FormControl<string | null>(null),
     pathToFile: new FormControl<string | null>(null, [Validators.required]),
   });
@@ -141,7 +142,7 @@ export class AddNewWidgetComponent {
         break;
 
       case WidgetType.INSTALL_WASM:
-        if (this.installWasmForm.invalid) {
+        if (this.installOrDeployForm.invalid) {
           return;
         }
         newWidget = {
@@ -150,8 +151,8 @@ export class AddNewWidgetComponent {
           projectView: this.baseForm.value.projectView as string,
           name: this.baseForm.value.name as string,
           type: WidgetType.INSTALL_WASM,
-          pathToFile: this.installWasmForm.value.pathToFile as string,
-          source: this.installWasmForm.value.source as string,
+          pathToFile: this.installOrDeployForm.value.pathToFile as string,
+          source: this.installOrDeployForm.value.source as string,
         } satisfies InstallWASMWidget;
         break;
 
@@ -168,6 +169,21 @@ export class AddNewWidgetComponent {
           code: this.deploySACForm.value.code as string,
           issuer: this.deploySACForm.value.issuer as string,
         } satisfies DeploySACWidget;
+        break;
+
+      case WidgetType.DEPLOY_CONTRACT:
+        if (this.installOrDeployForm.invalid) {
+          return;
+        }
+        newWidget = {
+          _id: crypto.randomUUID(),
+          project: this.baseForm.value.project as string,
+          projectView: this.baseForm.value.projectView as string,
+          name: this.baseForm.value.name as string,
+          type: WidgetType.DEPLOY_CONTRACT,
+          pathToFile: this.installOrDeployForm.value.pathToFile as string,
+          source: this.installOrDeployForm.value.source as string,
+        } satisfies DeployContractWidget;
         break;
 
       case WidgetType.LEDGER_KEY_WATCHER:
@@ -206,7 +222,7 @@ export class AddNewWidgetComponent {
 
   async searchFilePath(): Promise<void> {
     const filePath: string = await this.nativeDialogsService.filePath();
-    this.installWasmForm.controls.pathToFile.setValue(filePath);
+    this.installOrDeployForm.controls.pathToFile.setValue(filePath);
   }
 }
 
@@ -235,7 +251,7 @@ export interface FunctionCallForm {
   parameters: FormArray<FormGroup<FunctionCallParameter>>;
 }
 
-export interface InstallWasmForm {
+export interface InstallOrDeployWasmForm {
   source: FormControl<string | null>;
   pathToFile: FormControl<string | null>;
 }

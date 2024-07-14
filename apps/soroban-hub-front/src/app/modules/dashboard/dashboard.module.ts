@@ -25,6 +25,7 @@ import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { MatSelect } from '@angular/material/select';
 import { InstallWasmWidgetComponent } from './components/install-wasm-widget/install-wasm-widget.component';
 import { DeploySacComponent } from './components/deploy-sac/deploy-sac.component';
+import { DeployContractWidgetComponent } from './components/deploy-contract-widget/deploy-contract-widget.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { DeploySacComponent } from './components/deploy-sac/deploy-sac.component
     FunctionCallWidgetComponent,
     InstallWasmWidgetComponent,
     DeploySacComponent,
+    DeployContractWidgetComponent,
   ],
   imports: [
     CommonModule,
