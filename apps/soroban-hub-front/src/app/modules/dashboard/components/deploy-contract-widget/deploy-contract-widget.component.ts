@@ -23,6 +23,8 @@ import { FilesService } from '../../../../core/services/files/files.service';
 import { StellarService } from '../../../../core/services/stellar/stellar.service';
 import { getEntity } from '@ngneat/elf-entities';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
+import { ProjectsService } from '../../../../core/services/projects/projects.service';
+import { WidgetsService } from '../../../../core/services/widgets/widgets.service';
 
 @Component({
   selector: 'app-deploy-contract-widget',
@@ -68,7 +70,8 @@ export class DeployContractWidgetComponent {
     private readonly matSnackBar: MatSnackBar,
     private readonly matDialog: MatDialog,
     private readonly filesService: FilesService,
-    private readonly stellarService: StellarService
+    private readonly stellarService: StellarService,
+    private readonly widgetsService: WidgetsService
   ) {}
 
   async deploy() {
@@ -136,6 +139,16 @@ export class DeployContractWidgetComponent {
     const finalTx = await this.stellarService.simOrRestore({ tx, rpc });
 
     this.matDialog.open(XdrExportComponent, { data: { tx: finalTx } });
+  }
+
+  async edit(): Promise<void> {
+    const widget: DeployContractWidget | undefined = this.widget$.getValue();
+
+    if (!widget) {
+      return;
+    }
+
+    this.widgetsService.editWidget({ widget });
   }
 
   async remove(): Promise<void> {

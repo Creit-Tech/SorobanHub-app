@@ -19,6 +19,7 @@ import { Widget, WidgetsRepository, WidgetType } from '../../state/widgets/widge
 import { distinctUntilArrayItemChanged, emitOnce } from '@ngneat/elf';
 import { AddNewWidgetComponent } from '../../shared/modals/add-new-widget/add-new-widget.component';
 import { ProjectsService } from '../../core/services/projects/projects.service';
+import { WidgetsService } from '../../core/services/widgets/widgets.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -62,7 +63,8 @@ export class DashboardComponent {
     private readonly widgetsRepository: WidgetsRepository,
     private readonly bottomSheet: MatBottomSheet,
     private readonly matSnackBar: MatSnackBar,
-    private readonly projectsService: ProjectsService
+    private readonly projectsService: ProjectsService,
+    private readonly widgetsService: WidgetsService
   ) {}
 
   onProjectSelected(project: Project) {
@@ -95,12 +97,7 @@ export class DashboardComponent {
   async addNewWidget() {
     const activeProjectViews: ProjectView[] = await firstValueFrom(this.activeProjectViews$);
     const selectedProjectView: ProjectView = activeProjectViews[this.activeProjectViewTab$.getValue()];
-
-    this.matDialog.open(AddNewWidgetComponent, {
-      hasBackdrop: true,
-      data: { projectView: selectedProjectView },
-    });
-
+    this.widgetsService.openAddNewWidget({ projectView: selectedProjectView });
     this.projectAddListRef?.dismiss();
   }
 

@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef, MatDialogTitle } from '@angular/material/dialog';
 import {
   Project,
@@ -13,6 +13,7 @@ import {
   DeploySACWidget,
   FunctionCallParameterType,
   FunctionCallWidget,
+  FunctionCallWidgetParameter,
   InstallWASMWidget,
   LedgerKeyExpirationWidget,
   Widget,
@@ -25,7 +26,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { firstValueFrom, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
 import { emitOnce } from '@ngneat/elf';
 import { updateEntities, upsertEntities } from '@ngneat/elf-entities';
 import { NetworkLedgerService } from '../../../core/services/network-ledger/network-ledger.service';
@@ -51,7 +52,7 @@ import { NativeDialogsService } from '../../../core/services/native-dialogs/nati
   templateUrl: './add-new-widget.component.html',
   styles: ``,
 })
-export class AddNewWidgetComponent {
+export class AddNewWidgetComponent implements OnInit {
   protected readonly WidgetType = WidgetType;
 
   baseForm: FormGroup<BaseForm> = new FormGroup<BaseForm>({
@@ -92,7 +93,8 @@ export class AddNewWidgetComponent {
 
   constructor(
     private readonly dialogRef: MatDialogRef<AddNewWidgetComponent>,
-    @Inject(MAT_DIALOG_DATA) public readonly data: { projectView: ProjectView },
+    @Inject(MAT_DIALOG_DATA)
+    public readonly data: { projectView: ProjectView; widget?: Widget },
     private readonly matSnackBar: MatSnackBar,
     private readonly projectsRepository: ProjectsRepository,
     private readonly widgetsRepository: WidgetsRepository,
@@ -100,19 +102,83 @@ export class AddNewWidgetComponent {
     private readonly nativeDialogsService: NativeDialogsService
   ) {}
 
+  ngOnInit(): void {
+    if (!!this.data.widget) {
+      this.baseForm.disable();
+      this.baseForm.setValue(
+        {
+          name: this.data.widget.name,
+          project: this.data.widget.project,
+          projectView: this.data.widget.projectView,
+          type: this.data.widget.type,
+        },
+        { emitEvent: true }
+      );
+
+      switch (this.data.widget.type) {
+        case WidgetType.INSTALL_WASM:
+        case WidgetType.DEPLOY_CONTRACT:
+          this.installOrDeployForm.patchValue({
+            pathToFile: this.data.widget.pathToFile,
+            source: this.data.widget.source,
+          });
+          break;
+
+        case WidgetType.LEDGER_KEY_EXPIRATION:
+          this.ledgerKeyForm.patchValue({
+            type: 'LEDGER_KEY',
+            value: this.data.widget.key,
+          });
+          break;
+
+        case WidgetType.FUNCTION_CALL:
+          this.functionCallForm.patchValue({
+            contractId: this.data.widget.contractId,
+            source: this.data.widget.source,
+            fnName: this.data.widget.fnName,
+          });
+
+          const addControl = (node: FunctionCallWidgetParameter): FormGroup<FunctionCallParameter> =>
+            new FormGroup<FunctionCallParameter>({
+              name: new FormControl<string | null>(node.name),
+              type: new FormControl<FunctionCallParameterType | null>(node.type),
+              children: new FormArray<FormGroup<FunctionCallParameter>>(node.children.map(addControl)),
+            });
+
+          this.functionCallForm.setControl(
+            'parameters',
+            new FormArray<FormGroup<FunctionCallParameter>>(this.data.widget.parameters.map(addControl))
+          );
+          break;
+
+        case WidgetType.DEPLOY_SAC:
+          this.deploySACForm.patchValue({
+            code: this.data.widget.code,
+            issuer: this.data.widget.issuer,
+            source: this.data.widget.source,
+          });
+          break;
+
+        default:
+          throw new Error(`Widget type provided is not supported.`);
+      }
+    }
+  }
+
   confirm(): void {
     if (this.baseForm.invalid || !this.ledgerKeyForm.value.type) {
       return;
     }
 
     let newWidget: Widget;
+    const widgetId: string = this.data.widget?._id || crypto.randomUUID();
     switch (this.baseForm.value.type as WidgetType) {
       case WidgetType.LEDGER_KEY_EXPIRATION:
         if (this.ledgerKeyForm.invalid) {
           return;
         }
         newWidget = {
-          _id: crypto.randomUUID(),
+          _id: widgetId,
           project: this.baseForm.value.project as string,
           projectView: this.baseForm.value.projectView as string,
           name: this.baseForm.value.name as string,
@@ -129,7 +195,7 @@ export class AddNewWidgetComponent {
           return;
         }
         newWidget = {
-          _id: crypto.randomUUID(),
+          _id: widgetId,
           project: this.baseForm.value.project as string,
           projectView: this.baseForm.value.projectView as string,
           name: this.baseForm.value.name as string,
@@ -146,7 +212,7 @@ export class AddNewWidgetComponent {
           return;
         }
         newWidget = {
-          _id: crypto.randomUUID(),
+          _id: widgetId,
           project: this.baseForm.value.project as string,
           projectView: this.baseForm.value.projectView as string,
           name: this.baseForm.value.name as string,
@@ -161,7 +227,7 @@ export class AddNewWidgetComponent {
           return;
         }
         newWidget = {
-          _id: crypto.randomUUID(),
+          _id: widgetId,
           project: this.baseForm.value.project as string,
           projectView: this.baseForm.value.projectView as string,
           name: this.baseForm.value.name as string,
@@ -176,7 +242,7 @@ export class AddNewWidgetComponent {
           return;
         }
         newWidget = {
-          _id: crypto.randomUUID(),
+          _id: widgetId,
           project: this.baseForm.value.project as string,
           projectView: this.baseForm.value.projectView as string,
           name: this.baseForm.value.name as string,
@@ -192,16 +258,20 @@ export class AddNewWidgetComponent {
         throw new Error(`Widget type "${this.baseForm.value.type}" is not supported.`);
     }
 
-    emitOnce(() => {
-      this.projectsRepository.store.update(
-        updateEntities(
-          [this.data.projectView._id],
-          { widgets: [...this.data.projectView.widgets, newWidget._id] },
-          { ref: projectViewsEntitiesRef }
-        )
-      );
+    if (!!this.data.widget) {
       this.widgetsRepository.store.update(upsertEntities([newWidget]));
-    });
+    } else {
+      emitOnce(() => {
+        this.projectsRepository.store.update(
+          updateEntities(
+            [this.data.projectView._id],
+            { widgets: [...this.data.projectView.widgets, newWidget._id] },
+            { ref: projectViewsEntitiesRef }
+          )
+        );
+        this.widgetsRepository.store.update(upsertEntities([newWidget]));
+      });
+    }
 
     this.matSnackBar.open(`Widget "${newWidget.name}" saved`, 'close', {
       duration: 5000,

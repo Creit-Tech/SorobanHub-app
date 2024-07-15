@@ -4,8 +4,8 @@
       <div class="w-full flex justify-between items-center">
         <span>{{ widget.name }}</span>
 
-        <button (click)="remove()" mat-icon-button>
-          <mat-icon>delete</mat-icon>
+        <button [cdkMenuTriggerFor]="menuItemContext" mat-icon-button>
+          <mat-icon>menu</mat-icon>
         </button>
       </div>
     </mat-card-header>
@@ -50,4 +50,20 @@
       }
     </mat-card-actions>
   </mat-card>
+
+  <ng-template #menuItemContext>
+    <mat-card cdkMenu>
+      <button (click)="edit()"
+              mat-button cdkMenuItem
+              class="px-[1.5rem]">
+        Edit
+      </button>
+      <mat-divider></mat-divider>
+      <button (click)="remove()"
+              mat-button cdkMenuItem
+              class="px-[1.5rem]">
+        Remove
+      </button>
+    </mat-card>
+  </ng-template>
 }

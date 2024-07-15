@@ -19,7 +19,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CdkContextMenuTrigger, CdkMenu, CdkMenuItem } from '@angular/cdk/menu';
+import { CdkContextMenuTrigger, CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { FunctionCallWidgetComponent } from './components/function-call-widget/function-call-widget.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { MatSelect } from '@angular/material/select';
@@ -60,6 +60,7 @@ import { DeployContractWidgetComponent } from './components/deploy-contract-widg
     CdkCopyToClipboard,
     MatOption,
     MatSelect,
+    CdkMenuTrigger,
   ],
 })
 export class DashboardModule {}

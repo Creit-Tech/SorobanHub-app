@@ -1,5 +1,5 @@
 import { Component, DestroyRef, Input } from '@angular/core';
-import { InstallWASMWidget, WidgetsRepository } from '../../../../state/widgets/widgets.repository';
+import { DeploySACWidget, InstallWASMWidget, WidgetsRepository } from '../../../../state/widgets/widgets.repository';
 import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
 import { NetworkLedgerService } from '../../../../core/services/network-ledger/network-ledger.service';
 import { NetworkLedgerData, NetworkLedgerRepository } from '../../../../state/network-ledger/network-ledger.repository';
@@ -23,6 +23,7 @@ import {
 } from '@stellar/stellar-sdk';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
 import { StellarService } from '../../../../core/services/stellar/stellar.service';
+import { WidgetsService } from '../../../../core/services/widgets/widgets.service';
 
 @Component({
   selector: 'app-install-wasm-widget',
@@ -68,7 +69,8 @@ export class InstallWasmWidgetComponent {
     private readonly matSnackBar: MatSnackBar,
     private readonly matDialog: MatDialog,
     private readonly filesService: FilesService,
-    private readonly stellarService: StellarService
+    private readonly stellarService: StellarService,
+    private readonly widgetsService: WidgetsService
   ) {}
 
   // TODO: it could be a good idea to check if the WASM is already installed and notify if that's the case
@@ -136,6 +138,16 @@ export class InstallWasmWidgetComponent {
         tx: finalTx,
       },
     });
+  }
+
+  async edit(): Promise<void> {
+    const widget: InstallWASMWidget | undefined = this.widget$.getValue();
+
+    if (!widget) {
+      return;
+    }
+
+    this.widgetsService.editWidget({ widget });
   }
 
   async remove(): Promise<void> {

@@ -1,5 +1,6 @@
 import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import {
+  DeploySACWidget,
   FunctionCallParameterType,
   FunctionCallWidget,
   FunctionCallWidgetParameter,
@@ -26,6 +27,7 @@ import { Buffer } from 'buffer';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
 import { StellarService } from '../../../../core/services/stellar/stellar.service';
+import { WidgetsService } from '../../../../core/services/widgets/widgets.service';
 
 @Component({
   selector: 'app-function-call-widget',
@@ -60,7 +62,8 @@ export class FunctionCallWidgetComponent {
     private readonly matDialog: MatDialog,
     private readonly networksRepository: NetworksRepository,
     private readonly identitiesRepository: IdentitiesRepository,
-    private readonly stellarService: StellarService
+    private readonly stellarService: StellarService,
+    private readonly widgetsService: WidgetsService
   ) {}
 
   openModal() {
@@ -72,6 +75,16 @@ export class FunctionCallWidgetComponent {
       hasBackdrop: true,
       maxHeight: '90vh',
     });
+  }
+
+  async edit(): Promise<void> {
+    const widget: FunctionCallWidget | undefined = this.widget$.getValue();
+
+    if (!widget) {
+      return;
+    }
+
+    this.widgetsService.editWidget({ widget });
   }
 
   async remove(): Promise<void> {

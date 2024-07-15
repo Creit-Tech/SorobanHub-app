@@ -1,5 +1,9 @@
 import { Component, DestroyRef, Input } from '@angular/core';
-import { LedgerKeyExpirationWidget, WidgetsRepository } from '../../../../state/widgets/widgets.repository';
+import {
+  DeploySACWidget,
+  LedgerKeyExpirationWidget,
+  WidgetsRepository,
+} from '../../../../state/widgets/widgets.repository';
 import {
   BehaviorSubject,
   combineLatest,
@@ -35,6 +39,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { FormControl, Validators } from '@angular/forms';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
 import { StellarService } from '../../../../core/services/stellar/stellar.service';
+import { WidgetsService } from '../../../../core/services/widgets/widgets.service';
 
 @Component({
   selector: 'app-ledger-expiration-widget',
@@ -121,7 +126,8 @@ export class LedgerExpirationWidgetComponent {
     private readonly identitiesRepository: IdentitiesRepository,
     private readonly matSnackBar: MatSnackBar,
     private readonly matDialog: MatDialog,
-    private readonly stellarService: StellarService
+    private readonly stellarService: StellarService,
+    private readonly widgetsService: WidgetsService
   ) {}
 
   getKeySubscription: Subscription = combineLatest([
@@ -283,5 +289,15 @@ export class LedgerExpirationWidgetComponent {
         duration: 5000,
       });
     }
+  }
+
+  async edit(): Promise<void> {
+    const widget: LedgerKeyExpirationWidget | undefined = this.widget$.getValue();
+
+    if (!widget) {
+      return;
+    }
+
+    this.widgetsService.editWidget({ widget });
   }
 }

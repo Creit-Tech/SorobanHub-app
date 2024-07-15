@@ -1,4 +1,10 @@
-<h2 mat-dialog-title>Add a new widget</h2>
+<h2 mat-dialog-title>
+  @if (data.widget) {
+    Edit "{{ data.widget.name }}" widget
+  } @else {
+    Add a new widget
+  }
+</h2>
 
 <mat-dialog-content class="w-[30rem]">
   <section [formGroup]="baseForm" class="w-full flex flex-col">
