@@ -8,6 +8,17 @@ module.exports = {
     appBundleId: 'com.sorobanhub.app',
     icon: 'src/assets/icons/icon',
   },
+  publishers: [
+    {
+      name: "@electron-forge/publisher-github",
+      config: {
+        repository: {
+          owner: "Creit Technologies LLP",
+          name: "SorobanHub"
+        }
+      }
+    }
+  ],
   rebuildConfig: {},
   makers: [
     {

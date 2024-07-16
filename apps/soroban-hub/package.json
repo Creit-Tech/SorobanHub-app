@@ -41,20 +41,5 @@
     "rxjs": "^7.8.1",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1"
-  },
-  "config": {
-    "forge": {
-      "publishers": [
-        {
-          "name": "@electron-forge/publisher-github",
-          "config": {
-            "repository": {
-              "owner": "Creit Technologies LLP",
-              "name": "SorobanHub"
-            }
-          }
-        }
-      ]
-    }
   }
 }
