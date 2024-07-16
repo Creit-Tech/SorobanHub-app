@@ -7,6 +7,7 @@ module.exports = {
     name: 'SorobanHub',
     appBundleId: 'com.sorobanhub.app',
     icon: 'src/assets/icons/icon',
+    executableName: 'SorobanHub'
   },
   publishers: [
     {
@@ -27,7 +28,6 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
     },
     {
       name: '@electron-forge/maker-deb',

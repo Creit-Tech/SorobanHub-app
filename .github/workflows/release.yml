@@ -29,13 +29,16 @@ jobs:
       - name: Create code builds
         run: pnpm --filter soroban-hub-front build && pnpm --filter soroban-hub-back build
 
+      - name: Copy build to the Electron app
+        run: node ./copy-files.js
+
       - name: Save code builds
         id: code-builds-save
         uses: actions/cache/save@v4
         with:
           path: |
-            apps/soroban-hub-back/dist/apps/main
-            apps/soroban-hub-front/dist/soroban-hub-front/browser
+            apps/soroban-hub/src/main/index.js
+            apps/soroban-hub/src/renderer
           key: code-builds
 
   build_on_linux:
@@ -53,12 +56,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: |
-            apps/soroban-hub-back/dist/apps/main
-            apps/soroban-hub-front/dist/soroban-hub-front/browser
+            apps/soroban-hub/src/main/index.js
+            apps/soroban-hub/src/renderer
           key: code-builds
-
-      - name: Copy code builds
-        run: node ./copy-files.js
 
       - name: install dependencies
         working-directory: ./apps/soroban-hub
@@ -84,12 +84,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: |
-            apps/soroban-hub-back/dist/apps/main
-            apps/soroban-hub-front/dist/soroban-hub-front/browser
+            apps/soroban-hub/src/main/index.js
+            apps/soroban-hub/src/renderer
           key: code-builds
-
-      - name: Copy code builds
-        run: node ./copy-files.js
 
       - name: install dependencies
         working-directory: ./apps/soroban-hub
@@ -115,12 +112,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: |
-            apps/soroban-hub-back/dist/apps/main
-            apps/soroban-hub-front/dist/soroban-hub-front/browser
+            apps/soroban-hub/src/main/index.js
+            apps/soroban-hub/src/renderer
           key: code-builds
-
-      - name: Copy code builds
-        run: node ./copy-files.js
 
       - name: install dependencies
         working-directory: ./apps/soroban-hub
