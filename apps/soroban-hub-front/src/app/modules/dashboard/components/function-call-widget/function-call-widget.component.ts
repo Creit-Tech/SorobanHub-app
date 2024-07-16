@@ -1,5 +1,6 @@
 import { Component, Input, TemplateRef, ViewChild } from '@angular/core';
 import {
+  DeploySACWidget,
   FunctionCallParameterType,
   FunctionCallWidget,
   FunctionCallWidgetParameter,
@@ -25,6 +26,8 @@ import {
 import { Buffer } from 'buffer';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
+import { StellarService } from '../../../../core/services/stellar/stellar.service';
+import { WidgetsService } from '../../../../core/services/widgets/widgets.service';
 
 @Component({
   selector: 'app-function-call-widget',
@@ -58,7 +61,9 @@ export class FunctionCallWidgetComponent {
     private readonly matSnackBar: MatSnackBar,
     private readonly matDialog: MatDialog,
     private readonly networksRepository: NetworksRepository,
-    private readonly identitiesRepository: IdentitiesRepository
+    private readonly identitiesRepository: IdentitiesRepository,
+    private readonly stellarService: StellarService,
+    private readonly widgetsService: WidgetsService
   ) {}
 
   openModal() {
@@ -70,6 +75,16 @@ export class FunctionCallWidgetComponent {
       hasBackdrop: true,
       maxHeight: '90vh',
     });
+  }
+
+  async edit(): Promise<void> {
+    const widget: FunctionCallWidget | undefined = this.widget$.getValue();
+
+    if (!widget) {
+      return;
+    }
+
+    this.widgetsService.editWidget({ widget });
   }
 
   async remove(): Promise<void> {
@@ -127,9 +142,7 @@ export class FunctionCallWidgetComponent {
       .addOperation(contract.call(widget.fnName, ...parameters))
       .build();
 
-    const sim = await rpc.simulateTransaction(tx);
-
-    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+    const finalTx = await this.stellarService.simOrRestore({ tx, rpc });
 
     this.matDialog.open(XdrExportComponent, {
       data: {
@@ -146,19 +159,15 @@ export class FunctionCallWidgetComponent {
         items.push(xdr.ScVal.scvVec(this.createFnArgs(formArrayElement.controls.children)));
       } else if (formArrayElement.value.type === FunctionCallParameterType.map) {
         const map: xdr.ScVal = xdr.ScVal.scvMap(
-          formArrayElement.controls.children.controls.map(
-            control =>
-              new xdr.ScMapEntry({
-                key: this.parameterParser(
-                  control.controls.children.value[0].type!,
-                  control.controls.children.value[1].value!
-                ),
-                val: this.parameterParser(
-                  control.controls.children.value[0].type!,
-                  control.controls.children.value[1].type!
-                ),
-              })
-          )
+          formArrayElement.controls.children.controls
+            .sort((a, b) => (a.value.name! > b.value.name! ? 1 : -1))
+            .map(
+              control =>
+                new xdr.ScMapEntry({
+                  key: this.parameterParser(FunctionCallParameterType.symbol, control.value.name!),
+                  val: this.parameterParser(control.value.type!, control.value.value!),
+                })
+            )
         );
 
         items.push(map);
@@ -184,6 +193,9 @@ export class FunctionCallWidgetComponent {
 
       case FunctionCallParameterType.string:
         return xdr.ScVal.scvString(Buffer.from(value, 'utf-8'));
+
+      case FunctionCallParameterType.boolean:
+        return xdr.ScVal.scvBool(Boolean(value));
 
       case FunctionCallParameterType.i32:
       case FunctionCallParameterType.u32:

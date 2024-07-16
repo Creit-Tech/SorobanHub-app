@@ -1,45 +1,46 @@
 import { Component, DestroyRef, Input } from '@angular/core';
-import { DeploySACWidget, InstallWASMWidget, WidgetsRepository } from '../../../../state/widgets/widgets.repository';
-import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
-import { NetworkLedgerService } from '../../../../core/services/network-ledger/network-ledger.service';
-import { NetworkLedgerData, NetworkLedgerRepository } from '../../../../state/network-ledger/network-ledger.repository';
-import { IdentitiesRepository, Identity } from '../../../../state/identities/identities.repository';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatDialog } from '@angular/material/dialog';
-import { BehaviorSubject, distinctUntilKeyChanged, filter, firstValueFrom, map, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, distinctUntilKeyChanged, filter, map, Observable, switchMap } from 'rxjs';
 import { Project } from '../../../../state/projects/projects.repository';
-import { FilesService } from '../../../../core/services/files/files.service';
+import { DeployContractWidget, WidgetsRepository } from '../../../../state/widgets/widgets.repository';
 import { Buffer } from 'buffer';
-import { getEntity } from '@ngneat/elf-entities';
 import {
   Account,
+  Address,
   hash,
   Operation,
-  SorobanDataBuilder,
   SorobanRpc,
   Transaction,
   TransactionBuilder,
   xdr,
 } from '@stellar/stellar-sdk';
-import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
+import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
+import { NetworkLedgerService } from '../../../../core/services/network-ledger/network-ledger.service';
+import { NetworkLedgerRepository } from '../../../../state/network-ledger/network-ledger.repository';
+import { IdentitiesRepository, Identity } from '../../../../state/identities/identities.repository';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { FilesService } from '../../../../core/services/files/files.service';
 import { StellarService } from '../../../../core/services/stellar/stellar.service';
+import { getEntity } from '@ngneat/elf-entities';
+import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
+import { ProjectsService } from '../../../../core/services/projects/projects.service';
 import { WidgetsService } from '../../../../core/services/widgets/widgets.service';
 
 @Component({
-  selector: 'app-install-wasm-widget',
-  templateUrl: './install-wasm-widget.component.html',
+  selector: 'app-deploy-contract-widget',
+  templateUrl: './deploy-contract-widget.component.html',
   styles: ``,
 })
-export class InstallWasmWidgetComponent {
+export class DeployContractWidgetComponent {
   project$: BehaviorSubject<Project | undefined> = new BehaviorSubject<Project | undefined>(undefined);
   @Input() set project(data: Project) {
     this.project$.next(data);
   }
 
-  widget$: BehaviorSubject<InstallWASMWidget | undefined> = new BehaviorSubject<InstallWASMWidget | undefined>(
+  widget$: BehaviorSubject<DeployContractWidget | undefined> = new BehaviorSubject<DeployContractWidget | undefined>(
     undefined
   );
-  @Input() set widget(data: InstallWASMWidget) {
+  @Input() set widget(data: DeployContractWidget) {
     this.widget$.next(data);
   }
 
@@ -52,7 +53,7 @@ export class InstallWasmWidgetComponent {
   fileDataHash$: Observable<string> = this.widget$.asObservable().pipe(
     filter(Boolean),
     distinctUntilKeyChanged('_id'),
-    map((widget: InstallWASMWidget): string => widget.pathToFile),
+    map((widget: DeployContractWidget): string => widget.pathToFile),
     switchMap(async (pathToFile: string): Promise<string> => {
       const contractData: Buffer = await this.filesService.fileData(pathToFile);
       return hash(contractData).toString('hex');
@@ -73,9 +74,8 @@ export class InstallWasmWidgetComponent {
     private readonly widgetsService: WidgetsService
   ) {}
 
-  // TODO: it could be a good idea to check if the WASM is already installed and notify if that's the case
-  async install() {
-    const widget: InstallWASMWidget = this.widget$.getValue()!;
+  async deploy() {
+    const widget: DeployContractWidget = this.widget$.getValue()!;
     const project: Project = this.project$.getValue()!;
     const identity: Identity | undefined = this.identitiesRepository.store.query(getEntity(project.defaultIdentityId));
     const network: Network | undefined = this.networksRepository.store.query(getEntity(project.networkId));
@@ -121,27 +121,28 @@ export class InstallWasmWidgetComponent {
       .setTimeout(0)
       .addOperation(
         Operation.invokeHostFunction({
-          func: xdr.HostFunction.hostFunctionTypeUploadContractWasm(contractData),
+          func: xdr.HostFunction.hostFunctionTypeCreateContract(
+            new xdr.CreateContractArgs({
+              contractIdPreimage: xdr.ContractIdPreimage.contractIdPreimageFromAddress(
+                new xdr.ContractIdPreimageFromAddress({
+                  address: new Address(account.accountId()).toScAddress(),
+                  salt: Buffer.from(crypto.getRandomValues(new Uint32Array(32))),
+                })
+              ),
+              executable: xdr.ContractExecutable.contractExecutableWasm(contractDataHash),
+            })
+          ),
         })
-      )
-      .setSorobanData(
-        new SorobanDataBuilder()
-          .setReadWrite([xdr.LedgerKey.contractCode(new xdr.LedgerKeyContractCode({ hash: contractDataHash }))])
-          .build()
       )
       .build();
 
     const finalTx = await this.stellarService.simOrRestore({ tx, rpc });
 
-    this.matDialog.open(XdrExportComponent, {
-      data: {
-        tx: finalTx,
-      },
-    });
+    this.matDialog.open(XdrExportComponent, { data: { tx: finalTx } });
   }
 
   async edit(): Promise<void> {
-    const widget: InstallWASMWidget | undefined = this.widget$.getValue();
+    const widget: DeployContractWidget | undefined = this.widget$.getValue();
 
     if (!widget) {
       return;
@@ -151,7 +152,7 @@ export class InstallWasmWidgetComponent {
   }
 
   async remove(): Promise<void> {
-    const widget: InstallWASMWidget | undefined = this.widget$.getValue();
+    const widget: DeployContractWidget | undefined = this.widget$.getValue();
 
     if (!widget) {
       return;

@@ -12,42 +12,32 @@
 
     <mat-card-content>
       <mat-card-subtitle>
-        Ledger expiration Widget
+        Deploy Contract
       </mat-card-subtitle>
 
       <ul class="py-[0.5rem] text-[0.75rem]">
         <li>
-          <b>Expires on ledger:</b> {{ liveUntilLedgerSeq$ | async }}
+          <b>File:</b> {{ fileName$ | async }}
         </li>
-        <li>
-          <b>Modified on ledger:</b> {{ lastModifiedLedgerSeq$ | async }}
-        </li>
-        <li>
-          <b>Expires on:</b> {{ expirationDate$ | async | date: 'MMM dd, yyyy' }}
-        </li>
-        <li>
-          <b>Expires in:</b> {{ expiresIn$ | async }}
-        </li>
+
+        @if (widget.source; as source) {
+          <li>
+            <b>Source account:</b> {{ source | slice: 0: 4 }}....{{ source | slice: -4 }}
+          </li>
+        }
+
+        @if (fileDataHash$ | async; as fileDataHash) {
+          <li class="cursor-pointer" [cdkCopyToClipboard]="fileDataHash">
+            <b>Contract hash:</b> {{ fileDataHash | slice: 0: 4 }}....{{ fileDataHash | slice: -4 }}
+          </li>
+        }
       </ul>
     </mat-card-content>
 
     <mat-card-actions class="w-full flex flex-col">
-      @if (!(isExpired$ | async)) {
-        <mat-form-field class="w-full">
-          <mat-label>Ledgers to bump</mat-label>
-          <input [formControl]="bumpFormControl" matInput placeholder="ex: 4000">
-        </mat-form-field>
-      }
-
-      @if (isExpired$ | async) {
-        <button (click)="restore()" class="w-full" mat-raised-button color="primary">
-          Restore
-        </button>
-      } @else {
-        <button (click)="bump()" class="w-full" mat-raised-button color="primary">
-          Bump
-        </button>
-      }
+      <button (click)="deploy()" class="w-full" mat-raised-button color="primary">
+        Deploy
+      </button>
     </mat-card-actions>
   </mat-card>
 

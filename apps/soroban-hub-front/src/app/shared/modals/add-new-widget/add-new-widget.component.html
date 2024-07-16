@@ -1,4 +1,10 @@
-<h2 mat-dialog-title>Add a new widget</h2>
+<h2 mat-dialog-title>
+  @if (data.widget) {
+    Edit "{{ data.widget.name }}" widget
+  } @else {
+    Add a new widget
+  }
+</h2>
 
 <mat-dialog-content class="w-[30rem]">
   <section [formGroup]="baseForm" class="w-full flex flex-col">
@@ -29,10 +35,10 @@
       <mat-label>Widget Type</mat-label>
       <mat-select formControlName="type" required>
         @for (widgetType of widgetTypes; track widgetType) {
-          <mat-option [disabled]="widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM && widgetType !== WidgetType.DEPLOY_SAC"
+          <mat-option [disabled]="widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM && widgetType !== WidgetType.DEPLOY_SAC && widgetType !== WidgetType.DEPLOY_CONTRACT"
                       [value]="widgetType">
             {{ widgetType }}
-            @if (widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM && widgetType !== WidgetType.DEPLOY_SAC) {
+            @if (widgetType !== WidgetType.LEDGER_KEY_EXPIRATION && widgetType !== WidgetType.FUNCTION_CALL && widgetType !== WidgetType.INSTALL_WASM && widgetType !== WidgetType.DEPLOY_SAC && widgetType !== WidgetType.DEPLOY_CONTRACT) {
               (coming soon)
             }
           </mat-option>
@@ -136,7 +142,7 @@
       }
 
       @case (WidgetType.INSTALL_WASM) {
-        <ng-container [formGroup]="installWasmForm">
+        <ng-container [formGroup]="installOrDeployForm">
           <mat-form-field>
             <mat-label>Source (optional)</mat-label>
             <input formControlName="source" matInput placeholder="Transaction source">
@@ -148,6 +154,7 @@
           </mat-form-field>
         </ng-container>
       }
+
       @case (WidgetType.DEPLOY_SAC) {
         <ng-container [formGroup]="deploySACForm">
           <mat-form-field>
@@ -163,6 +170,20 @@
           <mat-form-field>
             <mat-label>Issuer</mat-label>
             <input formControlName="issuer" matInput placeholder="Public key or nothing if is the native asset">
+          </mat-form-field>
+        </ng-container>
+      }
+
+      @case (WidgetType.DEPLOY_CONTRACT) {
+        <ng-container [formGroup]="installOrDeployForm">
+          <mat-form-field>
+            <mat-label>Source (optional)</mat-label>
+            <input formControlName="source" matInput placeholder="Transaction source">
+          </mat-form-field>
+
+          <mat-form-field required (click)="searchFilePath()">
+            <mat-label>File path</mat-label>
+            <input formControlName="pathToFile" matInput placeholder="Ex: ~/contract.wasm">
           </mat-form-field>
         </ng-container>
       }

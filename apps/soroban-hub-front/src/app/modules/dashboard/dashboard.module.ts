@@ -19,12 +19,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CdkContextMenuTrigger, CdkMenu, CdkMenuItem } from '@angular/cdk/menu';
+import { CdkContextMenuTrigger, CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { FunctionCallWidgetComponent } from './components/function-call-widget/function-call-widget.component';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { MatSelect } from '@angular/material/select';
 import { InstallWasmWidgetComponent } from './components/install-wasm-widget/install-wasm-widget.component';
 import { DeploySacComponent } from './components/deploy-sac/deploy-sac.component';
+import { DeployContractWidgetComponent } from './components/deploy-contract-widget/deploy-contract-widget.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +35,7 @@ import { DeploySacComponent } from './components/deploy-sac/deploy-sac.component
     FunctionCallWidgetComponent,
     InstallWasmWidgetComponent,
     DeploySacComponent,
+    DeployContractWidgetComponent,
   ],
   imports: [
     CommonModule,
@@ -58,6 +60,7 @@ import { DeploySacComponent } from './components/deploy-sac/deploy-sac.component
     CdkCopyToClipboard,
     MatOption,
     MatSelect,
+    CdkMenuTrigger,
   ],
 })
 export class DashboardModule {}

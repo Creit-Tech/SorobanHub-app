@@ -1,6 +1,6 @@
 import { Component, DestroyRef, Input } from '@angular/core';
 import { BehaviorSubject, distinctUntilKeyChanged, filter, map, Observable, of, switchMap, withLatestFrom } from 'rxjs';
-import { Project, ProjectsRepository } from '../../../../state/projects/projects.repository';
+import { Project } from '../../../../state/projects/projects.repository';
 import { DeploySACWidget, WidgetsRepository } from '../../../../state/widgets/widgets.repository';
 import { Network, NetworksRepository } from '../../../../state/networks/networks.repository';
 import { NetworkLedgerService } from '../../../../core/services/network-ledger/network-ledger.service';
@@ -8,18 +8,11 @@ import { NetworkLedgerRepository } from '../../../../state/network-ledger/networ
 import { IdentitiesRepository, Identity } from '../../../../state/identities/identities.repository';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  Account,
-  Asset,
-  Operation,
-  SorobanDataBuilder,
-  SorobanRpc,
-  Transaction,
-  TransactionBuilder,
-  xdr,
-} from '@stellar/stellar-sdk';
+import { Account, Asset, Operation, SorobanRpc, Transaction, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
 import { getEntity, selectEntity } from '@ngneat/elf-entities';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
+import { StellarService } from '../../../../core/services/stellar/stellar.service';
+import { WidgetsService } from '../../../../core/services/widgets/widgets.service';
 
 @Component({
   selector: 'app-deploy-sac',
@@ -57,7 +50,9 @@ export class DeploySacComponent {
     private readonly widgetsRepository: WidgetsRepository,
     private readonly identitiesRepository: IdentitiesRepository,
     private readonly matSnackBar: MatSnackBar,
-    private readonly matDialog: MatDialog
+    private readonly matDialog: MatDialog,
+    private readonly stellarService: StellarService,
+    private readonly widgetsService: WidgetsService
   ) {}
 
   // TODO: if the contract is already deployed, we should notify the user
@@ -110,15 +105,23 @@ export class DeploySacComponent {
       )
       .build();
 
-    const sim = await rpc.simulateTransaction(tx);
-
-    const finalTx = SorobanRpc.assembleTransaction(tx, sim).build();
+    const finalTx = await this.stellarService.simOrRestore({ tx, rpc });
 
     this.matDialog.open(XdrExportComponent, {
       data: {
         tx: finalTx,
       },
     });
+  }
+
+  async edit(): Promise<void> {
+    const widget: DeploySACWidget | undefined = this.widget$.getValue();
+
+    if (!widget) {
+      return;
+    }
+
+    this.widgetsService.editWidget({ widget });
   }
 
   async remove(): Promise<void> {
