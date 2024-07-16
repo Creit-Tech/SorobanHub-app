@@ -1,0 +1,145 @@
+name: Build
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Create code builds
+        run: pnpm --filter soroban-hub-front build && pnpm --filter soroban-hub-back build
+
+      - name: Save code builds
+        id: code-builds-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            apps/soroban-hub-back/dist/apps/main
+            apps/soroban-hub-front/dist/soroban-hub-front/browser
+          key: code-builds
+
+  build_on_linux:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18
+
+      - name: Restore code builds
+        id: code-builds-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            apps/soroban-hub-back/dist/apps/main
+            apps/soroban-hub-front/dist/soroban-hub-front/browser
+          key: code-builds
+
+      - name: Copy code builds
+        run: |
+          mkdir -p apps/soroban-hub/src/renderer/
+          cp -r apps/soroban-hub-front/dist/soroban-hub-front/browser/* apps/soroban-hub/src/renderer/
+          mkdir -p apps/soroban-hub/src/main/
+          cp apps/soroban-hub-back/dist/apps/main/main.js apps/soroban-hub/src/main/index.js
+
+      - name: install dependencies
+        working-directory: ./apps/soroban-hub
+        run: npm install
+
+      - name: build
+        working-directory: ./apps/soroban-hub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run publish
+
+  build_on_mac:
+    needs: [prepare]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18
+
+      - name: Restore code builds
+        id: code-builds-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            apps/soroban-hub-back/dist/apps/main
+            apps/soroban-hub-front/dist/soroban-hub-front/browser
+          key: code-builds
+
+      - name: Copy code builds
+        run: |
+          mkdir -p apps/soroban-hub/src/renderer/
+          cp -r apps/soroban-hub-front/dist/soroban-hub-front/browser/* apps/soroban-hub/src/renderer/
+          mkdir -p apps/soroban-hub/src/main/
+          cp apps/soroban-hub-back/dist/apps/main/main.js apps/soroban-hub/src/main/index.js
+
+      - name: install dependencies
+        working-directory: ./apps/soroban-hub
+        run: npm install
+
+      - name: build
+        working-directory: ./apps/soroban-hub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run publish
+
+  build_on_win:
+    needs: [prepare]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18
+
+      - name: Restore code builds
+        id: code-builds-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            apps/soroban-hub-back/dist/apps/main
+            apps/soroban-hub-front/dist/soroban-hub-front/browser
+          key: code-builds
+
+      - name: Copy code builds
+        run: |
+          mkdir -p apps/soroban-hub/src/renderer/
+          cp -r apps/soroban-hub-front/dist/soroban-hub-front/browser/* apps/soroban-hub/src/renderer/
+          mkdir -p apps/soroban-hub/src/main/
+          cp apps/soroban-hub-back/dist/apps/main/main.js apps/soroban-hub/src/main/index.js
+
+      - name: install dependencies
+        working-directory: ./apps/soroban-hub
+        run: npm install
+
+      - name: build
+        working-directory: ./apps/soroban-hub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run publish
