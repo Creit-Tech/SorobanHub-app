@@ -13,8 +13,8 @@ module.exports = {
       name: "@electron-forge/publisher-github",
       config: {
         repository: {
-          owner: "Creit Technologies LLP",
-          name: "SorobanHub"
+          owner: "Creit-Tech",
+          name: "SorobanHub-app"
         }
       }
     }

@@ -1,7 +1,7 @@
 {
   "name": "soroban-hub-monorepo",
   "version": "0.5.0",
-  "description": "",
+  "description": "SorobanHub is a desktop app that helps you manage and monitor your Soroban contracts, removing the need to use scripts or the terminal and instead interact with them using a simple UI.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -58,11 +58,7 @@ jobs:
           key: code-builds
 
       - name: Copy code builds
-        run: |
-          mkdir -p apps/soroban-hub/src/renderer/
-          cp -r apps/soroban-hub-front/dist/soroban-hub-front/browser/* apps/soroban-hub/src/renderer/
-          mkdir -p apps/soroban-hub/src/main/
-          cp apps/soroban-hub-back/dist/apps/main/main.js apps/soroban-hub/src/main/index.js
+        run: node ./copy-files.js
 
       - name: install dependencies
         working-directory: ./apps/soroban-hub
@@ -93,11 +89,7 @@ jobs:
           key: code-builds
 
       - name: Copy code builds
-        run: |
-          mkdir -p apps/soroban-hub/src/renderer/
-          cp -r apps/soroban-hub-front/dist/soroban-hub-front/browser/* apps/soroban-hub/src/renderer/
-          mkdir -p apps/soroban-hub/src/main/
-          cp apps/soroban-hub-back/dist/apps/main/main.js apps/soroban-hub/src/main/index.js
+        run: node ./copy-files.js
 
       - name: install dependencies
         working-directory: ./apps/soroban-hub
@@ -128,11 +120,7 @@ jobs:
           key: code-builds
 
       - name: Copy code builds
-        run: |
-          mkdir -p apps/soroban-hub/src/renderer/
-          cp -r apps/soroban-hub-front/dist/soroban-hub-front/browser/* apps/soroban-hub/src/renderer/
-          mkdir -p apps/soroban-hub/src/main/
-          cp apps/soroban-hub-back/dist/apps/main/main.js apps/soroban-hub/src/main/index.js
+        run: node ./copy-files.js
 
       - name: install dependencies
         working-directory: ./apps/soroban-hub
