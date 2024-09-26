@@ -276,13 +276,19 @@ export class FunctionCallWidgetComponent {
         const map: xdr.ScVal = xdr.ScVal.scvMap(
           formArrayElement.controls.children.controls
             .sort((a, b) => (a.value.name! > b.value.name! ? 1 : -1))
-            .map(
-              control =>
-                new xdr.ScMapEntry({
-                  key: this.parameterParser(FunctionCallParameterType.symbol, control.value.name!),
-                  val: this.parameterParser(control.value.type!, control.value.value!),
-                })
-            )
+            .map(control => {
+              let val: xdr.ScVal;
+              if (control.value.type === FunctionCallParameterType.vec) {
+                val = xdr.ScVal.scvVec(this.createFnArgs(control.controls.children));
+              } else {
+                val = this.parameterParser(control.value.type!, control.value.value!);
+              }
+
+              return new xdr.ScMapEntry({
+                key: this.parameterParser(FunctionCallParameterType.symbol, control.value.name!),
+                val,
+              });
+            })
         );
 
         items.push(map);
