@@ -233,6 +233,7 @@ export class AddNewWidgetComponent implements OnInit {
           type: WidgetType.DEPLOY_SAC,
           code: this.deploySACForm.value.code as string,
           issuer: this.deploySACForm.value.issuer as string,
+          source: this.deploySACForm.value.source!,
         } satisfies DeploySACWidget;
         break;
 

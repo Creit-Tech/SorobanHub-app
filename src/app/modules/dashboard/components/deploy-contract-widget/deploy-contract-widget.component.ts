@@ -152,12 +152,16 @@ export class DeployContractWidgetComponent {
 
     let account: Account;
     try {
-      account = await rpc.getAccount(identity.address);
+      account = await rpc.getAccount(widget.source || identity.address);
     } catch (e: unknown) {
       console.error(e);
-      this.matSnackBar.open(`Account ${identity.address} doesn't exist in the network ${network.name}`, 'close', {
-        duration: 5000,
-      });
+      this.matSnackBar.open(
+        `Account ${widget.source || identity.address} doesn't exist in the network ${network.name}`,
+        'close',
+        {
+          duration: 5000,
+        }
+      );
       return;
     }
 
