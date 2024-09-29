@@ -333,22 +333,22 @@ export class FunctionCallWidgetComponent {
     }
   }
 
+  formGroupCreator(param: FunctionCallWidgetParameter): FormGroup {
+    return new FormGroup({
+      type: new FormControl(param.type, [Validators.required]),
+      name: new FormControl(param.name, [Validators.required]),
+      value: new FormControl('', [Validators.required]),
+      children: new FormArray(param.children.map((child: FunctionCallWidgetParameter) => this.formGroupCreator(child))),
+    });
+  }
+
   formBuilder(params: FunctionCallWidgetParameter[]) {
     if (this.parametersArrayForm.length > 0) {
       return;
     }
 
-    function formGroupCreator(param: FunctionCallWidgetParameter): FormGroup {
-      return new FormGroup({
-        type: new FormControl(param.type, [Validators.required]),
-        name: new FormControl(param.name, [Validators.required]),
-        value: new FormControl('', [Validators.required]),
-        children: new FormArray(param.children.map((child: FunctionCallWidgetParameter) => formGroupCreator(child))),
-      });
-    }
-
     for (const param of params) {
-      this.parametersArrayForm.push(formGroupCreator(param));
+      this.parametersArrayForm.push(this.formGroupCreator(param));
     }
   }
 
@@ -363,11 +363,10 @@ export class FunctionCallWidgetComponent {
     }
 
     vectorControl.push(
-      new FormGroup<FormArrayParameterItem>({
-        type: new FormControl<FunctionCallParameterType | null>(firstChild.value.type!, [Validators.required]),
-        name: new FormControl<string | null>(firstChild.value.name!, [Validators.required]),
-        value: new FormControl<string | null>('', [Validators.required]),
-        children: new FormArray<FormGroup<FormArrayParameterItem>>([]),
+      this.formGroupCreator({
+        name: firstChild.value.name!,
+        type: firstChild.value.type!,
+        children: firstChild.value.children as any,
       })
     );
   }

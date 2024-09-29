@@ -1,4 +1,4 @@
-import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatToolbar } from '@angular/material/toolbar';
 import { AsyncPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -11,12 +11,12 @@ import { MatCard } from '@angular/material/card';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { Widget, WidgetsRepository, WidgetType } from '../../state/widgets/widgets.repository';
 import { MatListItem, MatListItemTitle, MatNavList } from '@angular/material/list';
-import { MatLine } from '@angular/material/core';
+import { MatLine, MatOption } from '@angular/material/core';
 import { deleteEntitiesByPredicate, getActiveEntity, selectMany, setActiveId } from '@ngneat/elf-entities';
-import { distinctUntilArrayItemChanged, emitOnce } from '@ngneat/elf';
+import { distinctUntilArrayItemChanged, emitOnce, setProp } from '@ngneat/elf';
 import { Project, ProjectsRepository, ProjectView } from '../../state/projects/projects.repository';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { BehaviorSubject, firstValueFrom, Observable, switchMap } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, Subscription, switchMap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProjectsService } from '../../core/services/projects/projects.service';
@@ -28,6 +28,12 @@ import { FunctionCallWidgetComponent } from './components/function-call-widget/f
 import { LedgerExpirationWidgetComponent } from './components/ledger-expiration-widget/ledger-expiration-widget.component';
 import { InstallWasmWidgetComponent } from './components/install-wasm-widget/install-wasm-widget.component';
 import { DeployContractWidgetComponent } from './components/deploy-contract-widget/deploy-contract-widget.component';
+import { MatFormField, MatLabel } from '@angular/material/form-field';
+import { MatSelect } from '@angular/material/select';
+import { Networks } from '@stellar/stellar-sdk';
+import { NetworksRepository } from '../../state/networks/networks.repository';
+import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { DashboardProjectsListsComponent } from './layout/dashboard-projects-lists/dashboard-projects-lists.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -57,14 +63,17 @@ import { DeployContractWidgetComponent } from './components/deploy-contract-widg
     MatFabButton,
     CdkMenu,
     CdkMenuItem,
+    MatFormField,
+    MatSelect,
+    MatOption,
+    MatLabel,
+    ReactiveFormsModule,
+    DashboardProjectsListsComponent,
   ],
   template: `
-    <mat-toolbar class="row-span-auto relative col-span-2 bg-white shadow-md">
-      <!--  <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon">-->
-      <!--    <mat-icon>menu</mat-icon>-->
-      <!--  </button>-->
-      <img class="h-4/6" src="/logo/logo.png" alt="" />
-      <!--  <span>SorobanHub</span>-->
+    <mat-toolbar class="row-span-auto relative col-span-2 items-center bg-white shadow-md">
+      <img class="mr-[1rem] h-4/6" src="/logo/logo.png" alt="" />
+      <span class="hidden md:inline-block">SorobanHub</span>
 
       <span class="w-full"></span>
 
@@ -74,6 +83,18 @@ import { DeployContractWidgetComponent } from './components/deploy-contract-widg
 
       <span class="w-full"></span>
 
+      <mat-form-field subscriptSizing="dynamic" class="mr-[1rem] w-[25rem]">
+        <mat-label>Workspace</mat-label>
+        <mat-select
+          panelWidth="auto"
+          [value]="activePassphrase$ | async"
+          (selectionChange)="updateActiveNetworkPassphrase($event.value)">
+          <mat-option [value]="Networks.PUBLIC">Mainnet</mat-option>
+          <mat-option [value]="Networks.TESTNET">Testnet</mat-option>
+          <mat-option [value]="Networks.STANDALONE">Standalone</mat-option>
+        </mat-select>
+      </mat-form-field>
+
       <button mat-icon-button routerLink="/settings">
         <mat-icon>settings</mat-icon>
       </button>
@@ -81,52 +102,7 @@ import { DeployContractWidgetComponent } from './components/deploy-contract-widg
 
     <!-- Projects selector -->
     <section class="col-span-auto flex flex-col overflow-y-auto bg-[#EEEEEE] p-[1rem]">
-      @for (project of projects$ | async; track project._id) {
-        <div
-          class="relative mb-[1rem] w-full"
-          [matTooltip]="project.name"
-          matTooltipPosition="right"
-          matTooltipShowDelay="500">
-          @if ((activeProject$ | async)?._id === project._id) {
-            <mat-icon class="absolute top-1/2" style="transform: translate(-100%, -50%)">arrow_right</mat-icon>
-          }
-
-          @if (project.img) {
-            <button
-              (click)="onProjectSelected(project)"
-              [cdkContextMenuTriggerFor]="projectItemContext"
-              class="h-[4rem] w-[4rem] bg-cover bg-center"
-              style="background-image: url({{ project.img }})"
-              mat-raised-button>
-              <i></i>
-            </button>
-          } @else {
-            <button
-              (click)="onProjectSelected(project)"
-              [cdkContextMenuTriggerFor]="projectItemContext"
-              class="h-[4rem] w-[4rem] bg-[#FAFAFA] bg-cover bg-center"
-              mat-raised-button>
-              {{ project.name.slice(0, 1) }}
-            </button>
-          }
-
-          <ng-template #projectItemContext>
-            <mat-card cdkMenu>
-              <button mat-button cdkMenuItem class="px-[1.5rem]" (click)="onProjectSelected(project)">Select</button>
-              <mat-divider></mat-divider>
-              <button mat-button cdkMenuItem class="px-[1.5rem]" (click)="editProject(project)">Edit</button>
-              <mat-divider></mat-divider>
-              <button mat-button cdkMenuItem class="px-[1.5rem]" (click)="removeProject(project)">Remove</button>
-            </mat-card>
-          </ng-template>
-        </div>
-      }
-
-      <div class="flex w-full items-center justify-center">
-        <button (click)="addNewProject()" mat-icon-button color="primary">
-          <mat-icon>add_circle</mat-icon>
-        </button>
-      </div>
+      <app-dashboard-projects-lists></app-dashboard-projects-lists>
     </section>
     <!-- END Projects selector -->
 
@@ -257,6 +233,7 @@ export class DashboardComponent {
   matSnackBar: MatSnackBar = inject(MatSnackBar);
   projectsService: ProjectsService = inject(ProjectsService);
   widgetsService: WidgetsService = inject(WidgetsService);
+  networksRepository: NetworksRepository = inject(NetworksRepository);
 
   @ViewChild('projectAddList', { static: true }) projectAddListTemplate!: TemplateRef<HTMLTemplateElement>;
   projectAddListRef?: MatBottomSheetRef;
@@ -280,18 +257,10 @@ export class DashboardComponent {
     )
   );
 
-  onProjectSelected(project: Project) {
-    this.projectsRepository.store.update(setActiveId(project._id));
-  }
+  activePassphrase$ = this.networksRepository.activePassphrase$;
 
   async openAddNewList(): Promise<void> {
     this.projectAddListRef = this.bottomSheet.open(this.projectAddListTemplate, {
-      hasBackdrop: true,
-    });
-  }
-
-  addNewProject() {
-    this.matDialog.open(AddNewProjectComponent, {
       hasBackdrop: true,
     });
   }
@@ -312,14 +281,6 @@ export class DashboardComponent {
     const selectedProjectView: ProjectView = activeProjectViews[this.activeProjectViewTab$.getValue()];
     this.widgetsService.openAddNewWidget({ projectView: selectedProjectView });
     this.projectAddListRef?.dismiss();
-  }
-
-  async editProject(project?: Project): Promise<void> {
-    if (project) {
-      this.projectsService.editProject(project);
-    } else {
-      this.projectsService.editActiveProject();
-    }
   }
 
   removeProject(project?: Project) {
@@ -349,5 +310,10 @@ export class DashboardComponent {
     }
   }
 
+  updateActiveNetworkPassphrase(passphrase: Networks) {
+    this.networksRepository.store.update(setProp('activeNetworkPassphrase', passphrase));
+  }
+
   protected readonly WidgetType = WidgetType;
+  protected readonly Networks = Networks;
 }

@@ -1,8 +1,8 @@
-import { createStore, withProps } from '@ngneat/elf';
-import { withEntities, selectAllEntities } from '@ngneat/elf-entities';
+import { createStore, select, withProps } from '@ngneat/elf';
+import { selectAllEntities, withEntities } from '@ngneat/elf-entities';
 import { Injectable } from '@angular/core';
 import { Networks } from '@stellar/stellar-sdk';
-import { localStorageStrategy, persistState } from '@ngneat/elf-persist-state';
+import { persistState } from '@ngneat/elf-persist-state';
 import { LockScreenRepository } from '../lock-screen/lock-screen.repository';
 import { filter, Observable, take } from 'rxjs';
 import { StorageStrategy } from '../storage.strategy';
@@ -14,11 +14,15 @@ export interface Network {
   networkPassphrase: Networks;
 }
 
-export interface NetworksProps {}
+export interface NetworksProps {
+  activeNetworkPassphrase: Networks;
+}
 
 const store = createStore(
   { name: 'networks' },
-  withProps<NetworksProps>({}),
+  withProps<NetworksProps>({
+    activeNetworkPassphrase: Networks.PUBLIC,
+  }),
   withEntities<Network, '_id'>({ idKey: '_id' })
 );
 
@@ -30,6 +34,7 @@ export class NetworksRepository {
     unsubscribe(): void;
   };
 
+  activePassphrase$ = store.pipe(select(state => state.activeNetworkPassphrase));
   networks$ = store.pipe(selectAllEntities());
 
   constructor(private readonly lockScreenRepository: LockScreenRepository) {

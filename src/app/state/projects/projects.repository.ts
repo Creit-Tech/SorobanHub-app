@@ -30,10 +30,12 @@ export interface ProjectView {
   _id: string;
   projectId: Project['_id'];
   name: string;
-  widgets: Array<Widget['_id']>;
+  widgets: Widget['_id'][];
 }
 
-export interface ProjectsProps {}
+export interface ProjectsProps {
+  selectedProject?: Project['_id'];
+}
 
 const store = createStore(
   { name: 'projects' },
