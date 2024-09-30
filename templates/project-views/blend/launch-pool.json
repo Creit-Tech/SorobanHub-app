@@ -1,0 +1,276 @@
+{
+  "projectView": {
+    "_id": null,
+    "projectId": null,
+    "name": "Launch Blend pool",
+    "widgets": []
+  },
+  "widgets": [
+    {
+      "_id": null,
+      "project": null,
+      "projectView": null,
+      "name": "Deploy new pool",
+      "type": "FUNCTION_CALL",
+      "fnName": "deploy",
+      "contractId": "CBNGP7YRMCGSA5M6CNGGVJ7Q2G63YBAR3T3T5R6XU6V2J2ELHC34EZDK",
+      "parameters": [
+        {
+          "name": "admin",
+          "type": "address",
+          "children": []
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "children": []
+        },
+        {
+          "name": "salt",
+          "type": "hash",
+          "children": []
+        },
+        {
+          "name": "oracle",
+          "type": "address",
+          "children": []
+        },
+        {
+          "name": "backstop_take_rate",
+          "type": "u32",
+          "children": []
+        },
+        {
+          "name": "max_positions",
+          "type": "u32",
+          "children": []
+        }
+      ]
+    },
+    {
+      "_id": null,
+      "project": null,
+      "projectView": null,
+      "name": "Queue Set Reserve",
+      "type": "FUNCTION_CALL",
+      "fnName": "queue_set_reserve",
+      "contractId": "CBYQGDLLJSVGJ7JOTZSET2U3KBAECFJV7SGHQPGK6ZOKC2A6IHSEC7NS",
+      "parameters": [
+        {
+          "type": "address",
+          "name": "asset",
+          "children": []
+        },
+        {
+          "type": "map",
+          "name": "metadata",
+          "children": [
+            {
+              "type": "u32",
+              "name": "index",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "decimals",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "c_factor",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "l_factor",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "util",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "max_util",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "r_base",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "r_one",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "r_two",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "r_three",
+              "children": []
+            },
+            {
+              "type": "u32",
+              "name": "reactivity",
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": null,
+      "project": null,
+      "projectView": null,
+      "name": "Set Reserve",
+      "type": "FUNCTION_CALL",
+      "fnName": "set_reserve",
+      "contractId": "CBYQGDLLJSVGJ7JOTZSET2U3KBAECFJV7SGHQPGK6ZOKC2A6IHSEC7NS",
+      "parameters": [
+        {
+          "type": "address",
+          "name": "asset",
+          "children": []
+        }
+      ]
+    },
+    {
+      "_id": null,
+      "project": null,
+      "projectView": null,
+      "name": "Set Emissions Config",
+      "type": "FUNCTION_CALL",
+      "fnName": "set_emissions_config",
+      "contractId": "CBYQGDLLJSVGJ7JOTZSET2U3KBAECFJV7SGHQPGK6ZOKC2A6IHSEC7NS",
+      "parameters": [
+        {
+          "name": "Metadata",
+          "type": "vec",
+          "children": [
+            {
+              "name": "res_emission_metadata",
+              "type": "map",
+              "children": [
+                {
+                  "name": "res_index",
+                  "type": "u32",
+                  "children": []
+                },
+                {
+                  "name": "res_type",
+                  "type": "u32",
+                  "children": []
+                },
+                {
+                  "name": "share",
+                  "type": "u64",
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": null,
+      "project": null,
+      "projectView": null,
+      "name": "Acquiring Backstop tokens",
+      "type": "FUNCTION_CALL",
+      "fnName": "dep_lp_tokn_amt_out_get_tokn_in",
+      "contractId": "CBLV7M5FJL7QAUZLNTGAALBDN4BFZ6CFTWYUMSKAGIEMVPSZU7JZGVRP",
+      "parameters": [
+        {
+          "name": "token_in (USDC or BLND Contract ID)",
+          "type": "address",
+          "children": []
+        },
+        {
+          "name": "pool_amount_out (num of tokens to mint)",
+          "type": "i128",
+          "children": []
+        },
+        {
+          "name": "max_amount_in (total of USDC or BLND you will pay)",
+          "type": "i128",
+          "children": []
+        },
+        {
+          "name": "user (depositor of the funds)",
+          "type": "address",
+          "children": []
+        }
+      ]
+    },
+    {
+      "_id": null,
+      "project": null,
+      "projectView": null,
+      "name": "Depositing Backstop Tokens",
+      "type": "FUNCTION_CALL",
+      "fnName": "deposit",
+      "contractId": "CDJQJS3TLZ6LEWSBOZ2E6QEZZ4NS3JU5LDT2BT7A4UHWAXPLSNE6MM37",
+      "parameters": [
+        {
+          "type": "address",
+          "name": "from (depositor address)",
+          "children": []
+        },
+        {
+          "type": "address",
+          "name": "pool_address (Your created pool)",
+          "children": []
+        },
+        {
+          "type": "i128",
+          "name": "amount (Amount of backstop tokens to deposit)",
+          "children": []
+        }
+      ]
+    },
+    {
+      "_id": null,
+      "project": null,
+      "projectView": null,
+      "name": "Set pool status",
+      "type": "FUNCTION_CALL",
+      "fnName": "set_status",
+      "contractId": "CBYQGDLLJSVGJ7JOTZSET2U3KBAECFJV7SGHQPGK6ZOKC2A6IHSEC7NS",
+      "parameters": [
+        {
+          "type": "u32",
+          "name": "pool_status (0 = active, 2 = on ice or 4 = frozen)",
+          "children": []
+        }
+      ]
+    },
+    {
+      "_id": null,
+      "project": null,
+      "projectView": null,
+      "name": "Add Pool to Reward Zone",
+      "type": "FUNCTION_CALL",
+      "fnName": "add_reward",
+      "contractId": "CDJQJS3TLZ6LEWSBOZ2E6QEZZ4NS3JU5LDT2BT7A4UHWAXPLSNE6MM37",
+      "parameters": [
+        {
+          "name": "to_add (Your pool contract)",
+          "type": "address",
+          "children": []
+        },
+        {
+          "name": "to_remove (Another pool to remove)",
+          "type": "address",
+          "children": []
+        }
+      ]
+    }
+  ]
+}
