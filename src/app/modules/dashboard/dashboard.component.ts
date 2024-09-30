@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, inject, TemplateRef, ViewChild } from '@angular/core';
 import { MatToolbar } from '@angular/material/toolbar';
 import { AsyncPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -12,16 +12,15 @@ import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { Widget, WidgetsRepository, WidgetType } from '../../state/widgets/widgets.repository';
 import { MatListItem, MatListItemTitle, MatNavList } from '@angular/material/list';
 import { MatLine, MatOption } from '@angular/material/core';
-import { deleteEntitiesByPredicate, getActiveEntity, selectMany, setActiveId } from '@ngneat/elf-entities';
+import { deleteEntitiesByPredicate, getActiveEntity, selectMany } from '@ngneat/elf-entities';
 import { distinctUntilArrayItemChanged, emitOnce, setProp } from '@ngneat/elf';
 import { Project, ProjectsRepository, ProjectView } from '../../state/projects/projects.repository';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { BehaviorSubject, firstValueFrom, Observable, Subscription, switchMap } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, Observable, switchMap } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ProjectsService } from '../../core/services/projects/projects.service';
 import { WidgetsService } from '../../core/services/widgets/widgets.service';
-import { AddNewProjectComponent } from '../../shared/modals/add-new-project/add-new-project.component';
 import { AddNewProjectViewComponent } from '../../shared/modals/add-new-project-view/add-new-project-view.component';
 import { DeploySacComponent } from './components/deploy-sac/deploy-sac.component';
 import { FunctionCallWidgetComponent } from './components/function-call-widget/function-call-widget.component';
@@ -32,8 +31,9 @@ import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatSelect } from '@angular/material/select';
 import { Networks } from '@stellar/stellar-sdk';
 import { NetworksRepository } from '../../state/networks/networks.repository';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { DashboardProjectsListsComponent } from './layout/dashboard-projects-lists/dashboard-projects-lists.component';
+import { ImportExportService } from '../../core/services/import-export/import-export.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -205,6 +205,16 @@ import { DashboardProjectsListsComponent } from './layout/dashboard-projects-lis
           <span matLine>Add a new widget to the current view</span>
         </a>
 
+        <a (click)="importProjectView()" mat-list-item [disabled]="!(activeProject$ | async)">
+          <span matListItemTitle>Import view</span>
+          <span matLine>Export a view from a JSON file</span>
+        </a>
+
+        <a (click)="exportProjectView()" mat-list-item [disabled]="!(activeProject$ | async)">
+          <span matListItemTitle>Export view</span>
+          <span matLine>Export a JSON file to share this view</span>
+        </a>
+
         <a (click)="removeProjectView()" mat-list-item [disabled]="!(activeProjectViews$ | async)?.length">
           <span matListItemTitle>Remove view</span>
           <span matLine>Remove this view and all its widgets</span>
@@ -234,6 +244,7 @@ export class DashboardComponent {
   projectsService: ProjectsService = inject(ProjectsService);
   widgetsService: WidgetsService = inject(WidgetsService);
   networksRepository: NetworksRepository = inject(NetworksRepository);
+  importExportService: ImportExportService = inject(ImportExportService);
 
   @ViewChild('projectAddList', { static: true }) projectAddListTemplate!: TemplateRef<HTMLTemplateElement>;
   projectAddListRef?: MatBottomSheetRef;
@@ -273,6 +284,20 @@ export class DashboardComponent {
       },
     });
 
+    this.projectAddListRef?.dismiss();
+  }
+
+  async importProjectView() {
+    const activeProject = await firstValueFrom(this.activeProject$);
+    if (!activeProject) throw new Error('There is no active project.');
+    await this.importExportService.importView(activeProject._id);
+    this.projectAddListRef?.dismiss();
+  }
+
+  async exportProjectView() {
+    const activeProjectViews: ProjectView[] = await firstValueFrom(this.activeProjectViews$);
+    const selectedProjectView: ProjectView = activeProjectViews[this.activeProjectViewTab$.getValue()];
+    await this.importExportService.exportView(selectedProjectView._id, { removeSourceAccount: true });
     this.projectAddListRef?.dismiss();
   }
 

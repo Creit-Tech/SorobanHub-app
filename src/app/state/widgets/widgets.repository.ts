@@ -23,6 +23,7 @@ export interface WidgetBase {
   projectView: ProjectView['_id'];
   name: string;
   type: WidgetType;
+  source?: string;
 }
 
 export interface LedgerKeyExpirationWidget extends WidgetBase {
@@ -58,28 +59,24 @@ export interface FunctionCallWidgetParameter {
 
 export interface FunctionCallWidget extends WidgetBase {
   fnName: string;
-  source?: string;
   contractId: string;
   type: WidgetType.FUNCTION_CALL;
   parameters: FunctionCallWidgetParameter[];
 }
 
 export interface InstallWASMWidget extends WidgetBase {
-  source?: string;
   type: WidgetType.INSTALL_WASM;
   fileData: string;
   fileName: string;
 }
 
 export interface DeploySACWidget extends WidgetBase {
-  source?: string;
   type: WidgetType.DEPLOY_SAC;
   code: string;
   issuer: string;
 }
 
 export interface DeployContractWidget extends WidgetBase {
-  source?: string;
   type: WidgetType.DEPLOY_CONTRACT;
   fileData: string;
   fileName: string;
