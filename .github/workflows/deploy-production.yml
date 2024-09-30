@@ -40,3 +40,9 @@ jobs:
         env:
           BUCKET_NAME: ${{ secrets.S3_REGISTRY_BUCKET }}
         run: aws s3 sync ./dist/sorobanhub-app/browser s3://$BUCKET_NAME --delete
+
+      - name: Invalidate Cloudfront cache
+        if: success()
+        env:
+          DISTRIBUTION_ID: ${{ secrets.DISTRIBUTION_ID }}
+        run: aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths '/*'

@@ -2,11 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+### 0.7.0 (2024-09-29)
+#### Add
+- A workspace selector, this allows filtering the projects on the dashboard by the networks passphrase
+- Allow exporting and importing views (It helps in sharing dashboard views with others).
+
+#### Fix
+- In the function call widget, there was a bug when adding a new vector item. Now it should properly copy the correct types 
+- Source account was not being properly added in some of the widgets
+
 ### 0.6.0 (2024-09-22)
-### Add
+#### Add
 - Include the StellarWalletsKit so we can sign and submit directly from the app (no need to do that outside of SorobanHub)
 
-### Change
+#### Change
 - BREAKING CHANGE: The app moved from being an Electron desktop app to a regular website, this because we are not using any desktop feature that justifies the headaches of developing for desktop environments.
 - Upgrade Angular and Material from version 17 to 18
 - Refactor all the Angular components into standalone components and move the project from Modules to the new way.
