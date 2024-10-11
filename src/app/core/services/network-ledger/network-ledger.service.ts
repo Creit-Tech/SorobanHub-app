@@ -6,6 +6,7 @@ import { distinctUntilArrayItemChanged, setProps } from '@ngneat/elf';
 import { map, Subscription, switchMap, timer } from 'rxjs';
 import { selectAllEntities } from '@ngneat/elf-entities';
 import { Network, NetworksRepository } from '../../../state/networks/networks.repository';
+import { StellarService } from '../stellar/stellar.service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ import { Network, NetworksRepository } from '../../../state/networks/networks.re
 export class NetworkLedgerService {
   networkLedgerRepository: NetworkLedgerRepository = inject(NetworkLedgerRepository);
   networksRepository: NetworksRepository = inject(NetworksRepository);
+  stellarService: StellarService = inject(StellarService);
 
   updateLatestLedgersSubscription: Subscription = this.networksRepository.store
     .pipe(
@@ -36,7 +38,8 @@ export class NetworkLedgerService {
     network: Networks;
     rpcUrl: string;
   }): Promise<SorobanRpc.Api.GetLatestLedgerResponse> {
-    return new SorobanRpc.Server(params.rpcUrl, { allowHttp: true })
+    return this.stellarService
+      .createRPC(params.rpcUrl)
       .getLatestLedger()
       .then((response: SorobanRpc.Api.GetLatestLedgerResponse) => {
         this.networkLedgerRepository.store.update(
@@ -74,8 +77,8 @@ export class NetworkLedgerService {
     }
   }
 
-  async getLedgerKey(params: { key: string; rpc: string }) {
-    const rpc: SorobanRpc.Server = new SorobanRpc.Server(params.rpc, { allowHttp: true });
+  async getLedgerKey(params: { key: string; rpcUrl: string }) {
+    const rpc: SorobanRpc.Server = this.stellarService.createRPC(params.rpcUrl);
     return rpc.getLedgerEntries(xdr.LedgerKey.fromXDR(Buffer.from(params.key, 'base64')));
   }
 }

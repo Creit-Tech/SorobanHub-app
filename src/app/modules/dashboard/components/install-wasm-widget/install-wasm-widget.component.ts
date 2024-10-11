@@ -149,7 +149,7 @@ export class InstallWasmWidgetComponent {
       return;
     }
 
-    const rpc: SorobanRpc.Server = new SorobanRpc.Server(network.rpcUrl);
+    const rpc: SorobanRpc.Server = this.stellarService.createRPC(network.rpcUrl);
 
     let account: Account;
     try {

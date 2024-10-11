@@ -209,7 +209,7 @@ export class LedgerExpirationWidgetComponent {
     .subscribe({
       next: async ([network, widget]): Promise<void> => {
         const response = await this.networkLedgerService.getLedgerKey({
-          rpc: network.rpcUrl,
+          rpcUrl: network.rpcUrl,
           key: widget.key,
         });
 
@@ -261,7 +261,7 @@ export class LedgerExpirationWidgetComponent {
       return;
     }
 
-    const rpc: SorobanRpc.Server = new SorobanRpc.Server(network.rpcUrl);
+    const rpc: SorobanRpc.Server = this.stellarService.createRPC(network.rpcUrl);
 
     let account: Account;
     try {
@@ -316,7 +316,7 @@ export class LedgerExpirationWidgetComponent {
       return;
     }
 
-    const rpc: SorobanRpc.Server = new SorobanRpc.Server(network.rpcUrl);
+    const rpc: SorobanRpc.Server = this.stellarService.createRPC(network.rpcUrl);
 
     let account: Account;
     try {

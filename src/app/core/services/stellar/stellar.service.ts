@@ -12,7 +12,9 @@ export class StellarService {
     selectedWalletId: XBULL_ID,
   });
 
-  constructor() {}
+  createRPC(url: string): SorobanRpc.Server {
+    return new SorobanRpc.Server(url, { allowHttp: url.includes('http://localhost') });
+  }
 
   async simOrRestore(params: { rpc: SorobanRpc.Server; tx: Transaction }): Promise<Transaction> {
     const sim = await params.rpc.simulateTransaction(params.tx);
@@ -37,21 +39,21 @@ export class StellarService {
       .build();
   }
 
-  async submit(params: { rpc: SorobanRpc.Server; tx: Transaction }) {
-    const result = await params.rpc.sendTransaction(params.tx);
+  async submit(params: { rpcUrl: string; tx: Transaction }) {
+    const result = await this.createRPC(params.rpcUrl).sendTransaction(params.tx);
 
     if (result.status === 'ERROR') {
       throw new Error('Error while sending the transaction ' + result.hash);
     }
 
-    await this.waitUntilTxApproved(params.rpc, result.hash);
+    await this.waitUntilTxApproved(params.rpcUrl, result.hash);
   }
 
-  async waitUntilTxApproved(rpc: SorobanRpc.Server, hash: string, times = 60) {
+  async waitUntilTxApproved(rpcUrl: string, hash: string, times = 60) {
     let completed = false;
     let attempts = 0;
     while (!completed) {
-      const tx = await rpc.getTransaction(hash);
+      const tx = await this.createRPC(rpcUrl).getTransaction(hash);
 
       if (tx.status === 'NOT_FOUND') {
         await new Promise(r => setTimeout(r, 1000));

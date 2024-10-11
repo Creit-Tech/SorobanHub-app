@@ -86,7 +86,7 @@ export class XdrExportComponent {
 
     try {
       const tx = new Transaction(this.signedXdr, this.data.tx.networkPassphrase);
-      await this.stellarService.submit({ tx, rpc: new SorobanRpc.Server(this.data.rpcUrl) });
+      await this.stellarService.submit({ tx, rpcUrl: this.data.rpcUrl });
       this.signedXdr = undefined;
       this.matSnackBar.open('Transaction submitted', undefined, { duration: 5000 });
     } catch (e) {
