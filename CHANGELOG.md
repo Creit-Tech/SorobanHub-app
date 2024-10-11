@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+### 0.7.1 (2024-10-10)
+#### Add
+- Allow using non-http RPCs when working on localhost
+
 ### 0.7.0 (2024-09-29)
 #### Add
 - A workspace selector, this allows filtering the projects on the dashboard by the networks passphrase
