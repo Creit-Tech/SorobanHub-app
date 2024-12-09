@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { SorobanRpc, Transaction } from '@stellar/stellar-sdk';
+import { rpc as SorobanRpc, Transaction } from '@stellar/stellar-sdk';
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';

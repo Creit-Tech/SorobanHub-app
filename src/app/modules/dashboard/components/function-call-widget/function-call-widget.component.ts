@@ -29,7 +29,7 @@ import {
   Address,
   Contract,
   nativeToScVal,
-  SorobanRpc,
+  rpc as SorobanRpc,
   Transaction,
   TransactionBuilder,
   xdr,

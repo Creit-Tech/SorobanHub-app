@@ -16,7 +16,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { CdkCopyToClipboard } from '@angular/cdk/clipboard';
 import { MatDivider } from '@angular/material/divider';
 import { getEntity, selectEntity } from '@ngneat/elf-entities';
-import { Account, Asset, Operation, SorobanRpc, Transaction, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
+import { Account, Asset, Operation, rpc as SorobanRpc, Transaction, TransactionBuilder, xdr } from '@stellar/stellar-sdk';
 import { XdrExportComponent } from '../../../../shared/modals/xdr-export/xdr-export.component';
 
 @Component({

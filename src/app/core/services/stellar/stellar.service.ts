@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Account, Operation, SorobanRpc, Transaction, TransactionBuilder } from '@stellar/stellar-sdk';
+import { Account, Operation, rpc as SorobanRpc, Transaction, TransactionBuilder } from '@stellar/stellar-sdk';
 import { allowAllModules, StellarWalletsKit, WalletNetwork, XBULL_ID } from '@creit.tech/stellar-wallets-kit';
 
 @Injectable({

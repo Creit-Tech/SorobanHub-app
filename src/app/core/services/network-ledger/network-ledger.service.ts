@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { Address, Networks, SorobanRpc, xdr } from '@stellar/stellar-sdk';
+import { Address, Networks, rpc as SorobanRpc, xdr } from '@stellar/stellar-sdk';
 import { Buffer } from 'buffer';
 import { NetworkLedgerRepository, UpdatingStats } from '../../../state/network-ledger/network-ledger.repository';
 import { distinctUntilArrayItemChanged, setProps } from '@ngneat/elf';

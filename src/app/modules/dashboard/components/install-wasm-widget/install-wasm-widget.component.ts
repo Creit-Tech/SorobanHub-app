@@ -20,7 +20,7 @@ import {
   hash,
   Operation,
   SorobanDataBuilder,
-  SorobanRpc,
+  rpc as SorobanRpc,
   Transaction,
   TransactionBuilder,
   xdr,
