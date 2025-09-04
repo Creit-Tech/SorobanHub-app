@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+### 0.7.3 (2025-09-04)
+#### Change
+- Update Stellar SDK
+
 ### 0.7.2 (2024-12-08)
 #### Change
 - Update Stellar SDK
