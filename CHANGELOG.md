@@ -2,9 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+### 0.7.4 (2025-09-04)
+#### Fix
+- Add a polyfill for Hot wallet module
+
 ### 0.7.3 (2025-09-04)
 #### Change
 - Update Stellar SDK
+- Update Stellar Wallets kit
 
 ### 0.7.2 (2024-12-08)
 #### Change
